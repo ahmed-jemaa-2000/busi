@@ -4,6 +4,8 @@ import { getProductById, deleteFile } from '@/lib/strapi';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch product by ID
 export async function GET(
   request: NextRequest,

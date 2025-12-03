@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getAuthToken, getUserShopId } from '@/lib/auth';
+import { getAuthToken, getUserShopId } from '@/lib/auth-server';
 import { getProductsByShop, getCategoriesByShop, getStrapiMediaUrl } from '@/lib/strapi';
 import ProductListActions from '@/components/dashboard/ProductListActions';
 
@@ -145,11 +145,10 @@ export default async function ProductsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            product.isActive
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.isActive
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
-                          }`}
+                            }`}
                         >
                           {product.isActive ? 'Active' : 'Inactive'}
                         </span>

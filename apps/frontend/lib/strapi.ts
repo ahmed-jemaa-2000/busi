@@ -24,13 +24,14 @@ async function fetchAPI<T>(
 ): Promise<T> {
   const { token, ...fetchOptions } = options;
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(fetchOptions.headers || {}),
-  };
+  const headers = new Headers(fetchOptions.headers as HeadersInit | undefined);
+
+  if (!headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const queryString = query ? `?${qs.stringify(query, { encodeValuesOnly: true })}` : '';

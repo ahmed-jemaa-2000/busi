@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { getUserShopId } from '@/lib/auth';
+import { getUserShopId } from '@/lib/auth-server';
 import { createCategory } from '@/lib/strapi';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {

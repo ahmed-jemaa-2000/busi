@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getCurrentUser, getAuthToken, getUserShopId } from '@/lib/auth';
+import { getCurrentUser, getAuthToken, getUserShopId } from '@/lib/auth-server';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
@@ -11,7 +11,8 @@ export default async function DashboardLayout({
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect('/dashboard/login');
+    // Let the login page render without layout chrome
+    return <>{children}</>;
   }
 
   const token = getAuthToken();

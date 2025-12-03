@@ -1,4 +1,4 @@
-import { getAuthToken, getUserShopId } from '@/lib/auth';
+import { getAuthToken, getUserShopId } from '@/lib/auth-server';
 import { getProductsByShop, getOrdersByShop, getCategoriesByShop, getShopById } from '@/lib/strapi';
 import StatsCard from '@/components/dashboard/StatsCard';
 import Link from 'next/link';

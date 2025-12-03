@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
   const isDevelopment = hostname.includes('.test') || hostname.includes('localhost');
   const baseDomain = isDevelopment ? '.brandini.test' : '.brandini.tn';
   const minParts = isDevelopment || hostname.includes('.tn') ? 3 : 2;
+  const isProd = process.env.NODE_ENV === 'production';
 
   const isSubdomain = parts.length >= minParts &&
     !hostname.startsWith('dashboard.') &&
@@ -44,9 +45,8 @@ export async function middleware(request: NextRequest) {
 
   // DASHBOARD ROUTING
   if (pathname.startsWith('/dashboard')) {
-    // Ensure dashboard routes are accessed via dashboard subdomain
-    if (!hostname.startsWith('dashboard.')) {
-      // Redirect to dashboard subdomain
+    // Only enforce dashboard subdomain in production to avoid dev redirect loops
+    if (isProd && !hostname.startsWith('dashboard.')) {
       const dashboardUrl = new URL(request.url);
       dashboardUrl.host = `dashboard${baseDomain}`;
       return NextResponse.redirect(dashboardUrl);
