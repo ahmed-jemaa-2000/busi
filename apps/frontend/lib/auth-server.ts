@@ -55,12 +55,37 @@ export async function isAuthenticated(): Promise<boolean> {
  */
 export async function getUserShopId(token: string): Promise<number | null> {
     try {
-        const response = await fetch(`${STRAPI_URL}/api/shops?populate=owner`, {
+        const userRes = await fetch(`${STRAPI_URL}/api/users/me?populate=shops`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
             cache: 'no-store',
         });
+
+        if (!userRes.ok) {
+            return null;
+        }
+
+        const user = await userRes.json() as any;
+
+        if (!user?.id) {
+            return null;
+        }
+
+        // Prefer shops populated on the user (more reliable for multi-tenant)
+        if (Array.isArray(user.shops) && user.shops.length > 0) {
+            return user.shops[0].id;
+        }
+
+        const response = await fetch(
+            `${STRAPI_URL}/api/shops?filters[owner][id][$eq]=${user.id}&fields[0]=id`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                cache: 'no-store',
+            }
+        );
 
         if (!response.ok) {
             return null;
