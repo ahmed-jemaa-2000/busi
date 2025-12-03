@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Busi backend - Strapi headless CMS",
+  "scripts": {
+    "develop": "strapi develop",
+    "dev": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@strapi/strapi": "4.25.12",
+    "@strapi/plugin-users-permissions": "4.25.12",
+    "@strapi/plugin-i18n": "4.25.12",
+    "pg": "^8.11.3",
+    "better-sqlite3": "^9.4.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  },
+  "strapi": {
+    "uuid": "busi-e-commerce-saas"
+  }
+}
