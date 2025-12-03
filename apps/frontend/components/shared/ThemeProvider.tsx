@@ -22,7 +22,7 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-const FONT_FAMILIES = {
+export const FONT_FAMILIES = {
   inter: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   playfair: "'Playfair Display', Georgia, serif",
   montserrat: "'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif",
