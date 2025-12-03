@@ -41,15 +41,18 @@ export async function GET(request: NextRequest) {
 
 // PUT - Update shop settings
 export async function PUT(request: NextRequest) {
+  console.log('PUT /api/dashboard/shop started');
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
     if (!token) {
+      console.log('No token found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const shopId = await getUserShopId(token);
+    console.log('Shop ID:', shopId);
 
     if (!shopId) {
       return NextResponse.json({ error: 'No shop found' }, { status: 400 });
@@ -57,6 +60,7 @@ export async function PUT(request: NextRequest) {
 
     // Get FormData from request
     const formData = await request.formData();
+    console.log('FormData received');
 
     // Parse the data JSON
     const dataStr = formData.get('data') as string;
@@ -65,14 +69,19 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = JSON.parse(dataStr);
-
-    // Create FormData for Strapi
-    const strapiFormData = new FormData();
-    strapiFormData.append('data', JSON.stringify(data));
+    console.log('Parsed data:', data);
 
     // Handle logo upload if present
     const logoFile = formData.get('files.logo');
+
+    let response;
+
     if (logoFile) {
+      console.log('Logo file present, using FormData');
+      // Create FormData for Strapi
+      const strapiFormData = new FormData();
+      strapiFormData.append('data', JSON.stringify(data));
+
       // Get current shop to delete old logo if exists
       const currentShop = await getShopById(shopId, token);
       if (currentShop?.logo) {
@@ -85,20 +94,33 @@ export async function PUT(request: NextRequest) {
       }
 
       strapiFormData.append('files.logo', logoFile);
+
+      console.log('Sending FormData to Strapi...');
+      response = await fetch(`${STRAPI_URL}/api/shops/${shopId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: strapiFormData,
+      });
+    } else {
+      console.log('No logo file, using JSON');
+      console.log('Sending JSON to Strapi...');
+      response = await fetch(`${STRAPI_URL}/api/shops/${shopId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data }),
+      });
     }
 
-    // Send to Strapi
-    const response = await fetch(`${STRAPI_URL}/api/shops/${shopId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: strapiFormData,
-    });
+    console.log('Strapi response status:', response.status);
 
     if (!response.ok) {
       const error = await response.json();
-      console.error('Strapi error:', error);
+      console.error('Strapi error:', JSON.stringify(error, null, 2));
       return NextResponse.json(
         { error: error.error?.message || 'Failed to update shop' },
         { status: response.status }

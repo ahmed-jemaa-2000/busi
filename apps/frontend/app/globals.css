@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 262 83% 58%;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 32% 17%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 262 83% 58%;
   }
 }
 
@@ -53,6 +53,7 @@
   * {
     border-color: hsl(var(--border));
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -61,7 +62,11 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-lg;
+  }
+
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-lg;
   }
 
   .text-balance {
@@ -70,7 +75,11 @@
 
   /* Gradients */
   .gradient-primary {
-    background: linear-gradient(135deg, var(--color-primary, hsl(var(--primary))) 0%, var(--color-secondary, hsl(var(--secondary))) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(280, 80%, 60%) 100%);
+  }
+
+  .gradient-subtle {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
   }
 
   .gradient-accent {
@@ -78,7 +87,7 @@
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, var(--color-primary, hsl(var(--primary))) 0%, var(--color-secondary, hsl(var(--secondary))) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(280, 80%, 60%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -86,24 +95,32 @@
 
   /* Hover Effects */
   .hover-lift {
-    @apply transition-transform duration-300;
+    @apply transition-all duration-300 ease-out;
   }
 
   .hover-lift:hover {
-    @apply -translate-y-2;
+    @apply -translate-y-1 shadow-lg;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 ease-out border border-transparent;
+  }
+
+  .card-hover:hover {
+    @apply -translate-y-1 shadow-xl bg-white/80;
+    border-color: hsl(var(--primary) / 0.2);
   }
 
   /* Card Shadows */
   .card-shadow {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-                0 2px 4px -2px rgb(0 0 0 / 0.1),
-                0 0 0 1px rgb(0 0 0 / 0.05);
+    box-shadow: 0 4px 20px -2px rgb(0 0 0 / 0.05),
+      0 0 0 1px rgb(0 0 0 / 0.02);
   }
 
   .card-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-                0 4px 6px -4px rgb(0 0 0 / 0.1),
-                0 0 0 1px rgb(0 0 0 / 0.05);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.1),
+      0 0 0 1px rgb(0 0 0 / 0.02);
   }
 }
 
@@ -112,6 +129,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -122,6 +140,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -133,6 +152,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -152,16 +172,33 @@
 }
 
 /* Stagger animation for children */
-.stagger-fade-in > * {
+.stagger-fade-in>* {
   animation: fadeIn 0.6s ease-out backwards;
 }
 
-.stagger-fade-in > *:nth-child(1) { animation-delay: 0.1s; }
-.stagger-fade-in > *:nth-child(2) { animation-delay: 0.2s; }
-.stagger-fade-in > *:nth-child(3) { animation-delay: 0.3s; }
-.stagger-fade-in > *:nth-child(4) { animation-delay: 0.4s; }
-.stagger-fade-in > *:nth-child(5) { animation-delay: 0.5s; }
-.stagger-fade-in > *:nth-child(6) { animation-delay: 0.6s; }
+.stagger-fade-in>*:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.stagger-fade-in>*:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stagger-fade-in>*:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.stagger-fade-in>*:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.stagger-fade-in>*:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.stagger-fade-in>*:nth-child(6) {
+  animation-delay: 0.6s;
+}
 
 /* Custom Scrollbar */
 @supports (scrollbar-width: thin) {
@@ -262,4 +299,310 @@
 
 .prose-enhanced td {
   @apply border border-gray-300 px-4 py-2;
+}
+
+/* ============================================
+   TEMPLATE-SPECIFIC STYLING
+   ============================================ */
+
+/* Minimal Template - Clean, spacious, monochromatic */
+[data-template="minimal"] {
+  --animation-speed: 200ms;
+  --border-width: 1px;
+  --shadow-strength: 0.05;
+}
+
+[data-template="minimal"] h1,
+[data-template="minimal"] h2 {
+  @apply font-normal uppercase tracking-wide;
+}
+
+[data-template="minimal"] .card {
+  @apply shadow-sm border;
+}
+
+[data-template="minimal"] button {
+  @apply rounded-none;
+}
+
+/* Boutique Template - Elegant, luxurious, refined */
+[data-template="boutique"] {
+  --animation-speed: 500ms;
+  --border-width: 2px;
+  --shadow-strength: 0.15;
+}
+
+[data-template="boutique"] h1,
+[data-template="boutique"] h2 {
+  @apply font-semibold;
+}
+
+[data-template="boutique"] .card {
+  @apply shadow-lg border-2 rounded-lg;
+}
+
+[data-template="boutique"] p {
+  @apply leading-relaxed;
+  line-height: 1.8;
+}
+
+/* Kids Template - Playful, bright, fun */
+[data-template="kids"] {
+  --animation-speed: 300ms;
+  --border-radius: 1rem;
+  --shadow-strength: 0.25;
+}
+
+[data-template="kids"] h1,
+[data-template="kids"] h2 {
+  @apply font-bold lowercase;
+}
+
+[data-template="kids"] .card,
+[data-template="kids"] button,
+[data-template="kids"] input {
+  @apply rounded-2xl;
+}
+
+[data-template="kids"] p,
+[data-template="kids"] span {
+  @apply text-lg;
+}
+
+/* Street Template - Bold, urban, high-contrast */
+[data-template="street"] {
+  --animation-speed: 100ms;
+  --border-radius: 0;
+  --bg-base: theme('colors.gray.900');
+}
+
+[data-template="street"] {
+  @apply bg-gray-900 text-white;
+}
+
+[data-template="street"] h1,
+[data-template="street"] h2 {
+  @apply font-black uppercase tracking-tight;
+}
+
+[data-template="street"] .card {
+  @apply rounded-none;
+  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-template="street"] button {
+  @apply rounded-none font-bold uppercase;
+}
+
+/* ============================================
+   ADVANCED ANIMATIONS
+   ============================================ */
+
+/* Parallax layer for smooth scroll effects */
+.parallax-layer {
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Ripple effect for button clicks */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%);
+}
+
+.ripple:active::after {
+  width: 200px;
+  height: 200px;
+  animation: ripple 0.6s ease-out;
+}
+
+/* Image zoom on hover */
+.zoom-hover {
+  overflow: hidden;
+}
+
+.zoom-hover img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.zoom-hover:hover img {
+  transform: scale(1.15);
+}
+
+/* Bounce animation for kids template */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+[data-template="kids"] .animate-enter {
+  animation: bounce-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Slide-in animation for street template */
+@keyframes slide-in-hard {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+[data-template="street"] .animate-enter {
+  animation: slide-in-hard 0.2s ease-out;
+}
+
+/* Wiggle animation for kids template hover */
+@keyframes wiggle {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-2deg);
+  }
+
+  75% {
+    transform: rotate(2deg);
+  }
+}
+
+[data-template="kids"] button:hover,
+[data-template="kids"] .hover-wiggle:hover {
+  animation: wiggle 0.3s ease-in-out;
+}
+
+/* Smooth entrance fade for minimal template */
+[data-template="minimal"] .animate-enter {
+  animation: fadeIn 0.2s linear;
+}
+
+/* Elegant fade and scale for boutique */
+@keyframes elegant-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+[data-template="boutique"] .animate-enter {
+  animation: elegant-enter 0.5s ease-in-out;
+}
+
+/* Lightbox overlay */
+.lightbox-overlay {
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Image gallery transition */
+.gallery-transition {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+/* Sticky element shadow on scroll */
+.sticky-shadow {
+  transition: box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.sticky-shadow.scrolled {
+  @apply shadow-lg bg-white/95;
+  backdrop-filter: blur(8px);
+}
+
+/* Mobile sticky bar slide-up */
+@keyframes slide-up-mobile {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.mobile-sticky-bar {
+  animation: slide-up-mobile 0.3s ease-out;
+}
+
+/* Quick action overlay fade */
+.quick-actions {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.group:hover .quick-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Heart bounce animation */
+@keyframes heart-bounce {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  25% {
+    transform: scale(1.3);
+  }
+
+  50% {
+    transform: scale(0.9);
+  }
+
+  75% {
+    transform: scale(1.1);
+  }
+}
+
+.heart-bounce {
+  animation: heart-bounce 0.5s ease-in-out;
 }

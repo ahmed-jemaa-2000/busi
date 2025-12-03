@@ -15,7 +15,7 @@ export default async function DashboardLayout({
     return <>{children}</>;
   }
 
-  const token = getAuthToken();
+  const token = await getAuthToken();
   const shopId = token ? await getUserShopId(token) : null;
 
   return (
