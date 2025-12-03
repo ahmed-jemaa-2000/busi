@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
-import { getShopBySubdomain } from '@/lib/strapi';
+import { getShopBySubdomain, getCategoriesByShop } from '@/lib/strapi';
 import { ThemeProvider } from '@/components/shared/ThemeProvider';
 import StorefrontHeader from '@/components/storefront/StorefrontHeader';
 import StorefrontFooter from '@/components/storefront/StorefrontFooter';
@@ -25,6 +25,9 @@ export default async function StorefrontLayout({
     notFound();
   }
 
+  // Fetch categories for footer navigation
+  const categories = await getCategoriesByShop(shop.id);
+
   return (
     <ThemeProvider shop={shop}>
       <div className="min-h-screen flex flex-col">
@@ -32,7 +35,7 @@ export default async function StorefrontLayout({
         <main className="flex-grow">
           {children}
         </main>
-        <StorefrontFooter shop={shop} />
+        <StorefrontFooter shop={shop} categories={categories} />
       </div>
     </ThemeProvider>
   );
