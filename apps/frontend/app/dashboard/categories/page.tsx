@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/useConfirm';
 import type { Category } from '@busi/types';
 
 export default function CategoriesPage() {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -35,7 +38,7 @@ export default function CategoriesPage() {
 
   const handleCreate = async () => {
     if (!newName.trim()) {
-      alert('Category name is required');
+      toast.error('Category name is required');
       return;
     }
 
@@ -55,13 +58,14 @@ export default function CategoriesPage() {
         setIsCreating(false);
         fetchCategories();
         router.refresh();
+        toast.success('Category created successfully');
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to create category');
+        toast.error(error.message || 'Failed to create category');
       }
     } catch (error) {
       console.error('Error creating category:', error);
-      alert('Failed to create category');
+      toast.error('Failed to create category');
     }
   };
 
@@ -79,7 +83,7 @@ export default function CategoriesPage() {
 
   const handleUpdate = async (categoryId: number) => {
     if (!editingName.trim()) {
-      alert('Category name is required');
+      toast.error('Category name is required');
       return;
     }
 
@@ -97,18 +101,26 @@ export default function CategoriesPage() {
         cancelEdit();
         fetchCategories();
         router.refresh();
+        toast.success('Category updated successfully');
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to update category');
+        toast.error(error.message || 'Failed to update category');
       }
     } catch (error) {
       console.error('Error updating category:', error);
-      alert('Failed to update category');
+      toast.error('Failed to update category');
     }
   };
 
   const handleDelete = async (categoryId: number, categoryName: string) => {
-    if (!confirm(`Delete category "${categoryName}"? Products in this category will become uncategorized.`)) {
+    const confirmed = await confirm({
+      title: 'Delete Category',
+      description: `Delete category "${categoryName}"? Products in this category will become uncategorized.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -120,13 +132,14 @@ export default function CategoriesPage() {
       if (response.ok) {
         fetchCategories();
         router.refresh();
+        toast.success('Category deleted successfully');
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to delete category');
+        toast.error(error.message || 'Failed to delete category');
       }
     } catch (error) {
       console.error('Error deleting category:', error);
-      alert('Failed to delete category');
+      toast.error('Failed to delete category');
     }
   };
 

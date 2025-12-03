@@ -44,7 +44,19 @@ module.exports = async (policyContext, config, { strapi }) => {
   // For create operations, automatically set the shop
   if (policyContext.request.method === 'POST') {
     if (policyContext.request.body && policyContext.request.body.data) {
-      policyContext.request.body.data.shop = userShop.id;
+      // Handle both regular JSON and FormData with stringified JSON
+      if (typeof policyContext.request.body.data === 'string') {
+        try {
+          const parsedData = JSON.parse(policyContext.request.body.data);
+          parsedData.shop = userShop.id;
+          policyContext.request.body.data = JSON.stringify(parsedData);
+        } catch (error) {
+          strapi.log.error('Failed to parse request body data:', error);
+          return false;
+        }
+      } else if (typeof policyContext.request.body.data === 'object') {
+        policyContext.request.body.data.shop = userShop.id;
+      }
     }
   }
 

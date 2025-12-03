@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useConfirm } from '@/hooks/useConfirm';
 import ProductForm from '@/components/dashboard/ProductForm';
 import type { Category } from '@busi/types';
 
 export default function CreateProductPage() {
   const router = useRouter();
+  const { confirm } = useConfirm();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,17 +50,25 @@ export default function CreateProductPage() {
       const result = await response.json();
 
       // Success - redirect to products list
+      toast.success('Product created successfully!');
       router.push('/dashboard/products');
       router.refresh();
     } catch (error: any) {
       console.error('Error creating product:', error);
-      alert(error.message || 'Failed to create product. Please try again.');
+      toast.error(error.message || 'Failed to create product. Please try again.');
       setIsSubmitting(false);
     }
   };
 
-  const handleCancel = () => {
-    if (confirm('Are you sure? Any unsaved changes will be lost.')) {
+  const handleCancel = async () => {
+    const confirmed = await confirm({
+      title: 'Discard Changes',
+      description: 'Are you sure? Any unsaved changes will be lost.',
+      confirmText: 'Discard',
+      cancelText: 'Keep Editing',
+    });
+
+    if (confirmed) {
       router.push('/dashboard/products');
     }
   };

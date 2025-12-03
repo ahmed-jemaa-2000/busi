@@ -5,7 +5,7 @@ import { getProductsByShop, getCategoriesByShop, getStrapiMediaUrl } from '@/lib
 import ProductListActions from '@/components/dashboard/ProductListActions';
 
 export default async function ProductsPage() {
-  const token = getAuthToken();
+  const token = await getAuthToken();
 
   if (!token) {
     return <div>Unauthorized</div>;
@@ -18,7 +18,7 @@ export default async function ProductsPage() {
   }
 
   const [products, categories] = await Promise.all([
-    getProductsByShop(shopId),
+    getProductsByShop(shopId, { token }),
     getCategoriesByShop(shopId, token),
   ]);
 

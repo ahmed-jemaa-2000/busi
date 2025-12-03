@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import { getShopBySubdomain, getProductBySlug, getStrapiMediaUrl } from '@/lib/strapi';
+import { sanitizeHtml } from '@/lib/sanitize';
 import WhatsAppButton from '@/components/storefront/WhatsAppButton';
 import ProductImageGallery from '@/components/storefront/ProductImageGallery';
 
@@ -57,7 +58,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {product.description && (
             <div
               className="prose max-w-none mb-6"
-              dangerouslySetInnerHTML={{ __html: product.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
             />
           )}
 

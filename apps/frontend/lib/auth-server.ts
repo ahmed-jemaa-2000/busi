@@ -7,7 +7,7 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
  * Get current user from JWT token (server-side)
  */
 export async function getCurrentUser(): Promise<User | null> {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get('auth_token');
 
     if (!token) {
@@ -36,8 +36,8 @@ export async function getCurrentUser(): Promise<User | null> {
 /**
  * Get auth token from cookies (server-side)
  */
-export function getAuthToken(): string | undefined {
-    const cookieStore = cookies();
+export async function getAuthToken(): Promise<string | undefined> {
+    const cookieStore = await cookies();
     const token = cookieStore.get('auth_token');
     return token?.value;
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { toast } from 'sonner';
 import type { Shop } from '@busi/types';
 import { getStrapiMediaUrl } from '@/lib/strapi';
 
@@ -97,11 +98,11 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        toast.error('Please select an image file');
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert('Logo must be less than 5MB');
+        toast.error('Logo must be less than 5MB');
         return;
       }
 
@@ -124,12 +125,12 @@ export default function SettingsPage() {
 
   const validateForm = (): boolean => {
     if (!name.trim()) {
-      alert('Shop name is required');
+      toast.error('Shop name is required');
       return false;
     }
 
     if (whatsappNumber && !/^[+]?[0-9]{8,15}$/.test(whatsappNumber.replace(/\s/g, ''))) {
-      alert('Invalid WhatsApp number format');
+      toast.error('Invalid WhatsApp number format');
       return false;
     }
 
@@ -183,12 +184,12 @@ export default function SettingsPage() {
         throw new Error('Failed to update settings');
       }
 
-      alert('Settings saved successfully!');
+      toast.success('Settings saved successfully!');
       router.refresh();
       fetchShop();
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Failed to save settings. Please try again.');
+      toast.error('Failed to save settings. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -287,7 +288,7 @@ export default function SettingsPage() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
           />
           <p className="text-sm text-gray-500 mt-1">
-            Your storefront: https://{shop.subdomain}.brandini.tn
+            Your storefront: https://{shop.subdomain}.{process.env.NODE_ENV === 'development' ? 'brandini.test:3000' : 'brandini.tn'}
           </p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import type { Order } from '@busi/types';
 
 const STATUS_COLORS = {
@@ -56,10 +57,11 @@ export default function OrdersPage() {
           const updated = await response.json();
           setSelectedOrder(updated);
         }
+        toast.success('Order status updated successfully');
       }
     } catch (error) {
       console.error('Error updating order:', error);
-      alert('Failed to update order status');
+      toast.error('Failed to update order status');
     }
   };
 

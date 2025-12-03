@@ -139,9 +139,12 @@ export async function getProductsByShop(
     featured?: boolean;
     active?: boolean;
     categoryId?: number;
+    token?: string;
   } = {}
 ): Promise<Product[]> {
   try {
+    console.log('[getProductsByShop] Called with shopId:', shopId, 'token:', options.token ? 'exists' : 'missing');
+
     const filters: any = {
       shop: {
         id: {
@@ -168,6 +171,7 @@ export async function getProductsByShop(
 
     const response = await fetchAPI<StrapiCollectionResponse<Product>>('/products', {
       cache: 'no-store',
+      token: options.token,
     }, {
       filters,
       populate: ['images', 'category', 'shop'],

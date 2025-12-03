@@ -11,8 +11,11 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
+    console.log('[Create Product API] Token exists:', !!token);
+
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.log('[Create Product API] No token found in cookies');
+      return NextResponse.json({ error: 'Unauthorized - Please log in again' }, { status: 401 });
     }
 
     // Get user's shop ID
@@ -36,6 +39,12 @@ export async function POST(request: NextRequest) {
     // Add shop ID to data
     data.shop = shopId;
 
+    console.log('[Create Product API] Sending to Strapi:', {
+      shopId,
+      dataKeys: Object.keys(data),
+      hasImages: formData.getAll('files.images').length > 0
+    });
+
     // Create new FormData for Strapi
     const strapiFormData = new FormData();
     strapiFormData.append('data', JSON.stringify(data));
@@ -56,8 +65,20 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error('Strapi error:', error);
+      const errorText = await response.text();
+      console.error('[Create Product API] Strapi error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch (e) {
+        error = { error: { message: errorText || 'Failed to create product' } };
+      }
+
       return NextResponse.json(
         { error: error.error?.message || 'Failed to create product' },
         { status: response.status }

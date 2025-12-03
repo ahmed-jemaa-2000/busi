@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { toast } from 'sonner';
 import type { Product, Category, Media } from '@busi/types';
 import { getStrapiMediaUrl } from '@/lib/strapi';
 
@@ -57,11 +58,11 @@ export default function ProductForm({
     // Validate file types
     const validFiles = files.filter(file => {
       if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not an image file`);
+        toast.error(`${file.name} is not an image file`);
         return false;
       }
       if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name} is too large (max 10MB)`);
+        toast.error(`${file.name} is too large (max 10MB)`);
         return false;
       }
       return true;
@@ -183,7 +184,7 @@ export default function ProductForm({
       await onSubmit(formData);
     } catch (error) {
       console.error('Form submission error:', error);
-      alert('Failed to save product. Please try again.');
+      toast.error('Failed to save product. Please try again.');
     }
   };
 

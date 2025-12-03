@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import type { Product, Shop } from '@busi/types';
 import { generateWhatsAppUrl } from '@/lib/whatsapp';
 
@@ -15,7 +16,7 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
 
   const handleOrderClick = () => {
     if (!shop.whatsappNumber) {
-      alert('WhatsApp number not configured for this shop');
+      toast.error('WhatsApp number not configured for this shop');
       return;
     }
 
