@@ -43,7 +43,20 @@ async function fetchAPI<T>(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
+    const errorText = await response.text();
+    console.error('[fetchAPI] Error response', {
+      url,
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+    });
+    const error = (() => {
+      try {
+        return JSON.parse(errorText);
+      } catch {
+        return {};
+      }
+    })();
     throw new Error(error.error?.message || `API Error: ${response.status}`);
   }
 

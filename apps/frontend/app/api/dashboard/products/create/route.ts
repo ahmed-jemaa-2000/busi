@@ -6,6 +6,19 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
 
 export const dynamic = 'force-dynamic';
 
+function slugify(text: string): string {
+  return text
+    .toString()
+    .normalize('NFKD') // Separate accent marks
+    .replace(/[\u0300-\u036f]/g, '') // Remove accent marks
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
@@ -35,6 +48,12 @@ export async function POST(request: NextRequest) {
     }
 
     const data = JSON.parse(dataStr);
+
+    if (!data.name || typeof data.name !== 'string') {
+      return NextResponse.json({ error: 'Product name is required' }, { status: 400 });
+    }
+
+    data.slug = data.slug || slugify(data.name) || `product-${Date.now()}`;
 
     // Add shop ID to data
     data.shop = shopId;

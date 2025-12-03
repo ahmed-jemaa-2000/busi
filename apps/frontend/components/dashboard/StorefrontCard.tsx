@@ -7,7 +7,8 @@ interface StorefrontCardProps {
 export default function StorefrontCard({ shop }: StorefrontCardProps) {
     const isDevelopment = process.env.NODE_ENV === 'development';
     const baseDomain = isDevelopment ? 'brandini.test:3000' : 'brandini.tn';
-    const shopUrl = `https://${shop.subdomain}.${baseDomain}`;
+    const protocol = isDevelopment ? 'http' : 'https';
+    const shopUrl = `${protocol}://${shop.subdomain}.${baseDomain}`;
 
     return (
         <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-1 shadow-lg text-white overflow-hidden relative group">
