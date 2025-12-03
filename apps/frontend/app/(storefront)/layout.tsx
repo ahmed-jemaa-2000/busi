@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getShopBySubdomain } from '@/lib/strapi';
 import { ThemeProvider } from '@/components/shared/ThemeProvider';
 import StorefrontHeader from '@/components/storefront/StorefrontHeader';
@@ -6,15 +7,13 @@ import StorefrontFooter from '@/components/storefront/StorefrontFooter';
 
 interface StorefrontLayoutProps {
   children: React.ReactNode;
-  params: Record<string, string>;
-  searchParams: { subdomain?: string };
 }
 
 export default async function StorefrontLayout({
   children,
-  searchParams,
 }: StorefrontLayoutProps) {
-  const subdomain = searchParams.subdomain;
+  const headersList = await headers();
+  const subdomain = headersList.get('x-subdomain');
 
   if (!subdomain) {
     notFound();

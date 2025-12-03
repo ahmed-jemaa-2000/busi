@@ -1,15 +1,13 @@
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getShopBySubdomain, getProductsByShop, getCategoriesByShop } from '@/lib/strapi';
 import Hero from '@/components/storefront/Hero';
 import CategoryNav from '@/components/storefront/CategoryNav';
 import ProductGrid from '@/components/storefront/ProductGrid';
 
-interface StorefrontPageProps {
-  searchParams: { subdomain?: string };
-}
-
-export default async function StorefrontPage({ searchParams }: StorefrontPageProps) {
-  const subdomain = searchParams.subdomain;
+export default async function StorefrontPage() {
+  const headersList = await headers();
+  const subdomain = headersList.get('x-subdomain');
 
   if (!subdomain) {
     notFound();

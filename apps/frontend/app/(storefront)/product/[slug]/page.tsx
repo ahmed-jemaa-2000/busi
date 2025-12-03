@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import Image from 'next/image';
 import { getShopBySubdomain, getProductBySlug, getStrapiMediaUrl } from '@/lib/strapi';
 import WhatsAppButton from '@/components/storefront/WhatsAppButton';
@@ -6,11 +7,11 @@ import ProductImageGallery from '@/components/storefront/ProductImageGallery';
 
 interface ProductPageProps {
   params: { slug: string };
-  searchParams: { subdomain?: string };
 }
 
-export default async function ProductPage({ params, searchParams }: ProductPageProps) {
-  const subdomain = searchParams.subdomain;
+export default async function ProductPage({ params }: ProductPageProps) {
+  const headersList = await headers();
+  const subdomain = headersList.get('x-subdomain');
 
   if (!subdomain) {
     notFound();

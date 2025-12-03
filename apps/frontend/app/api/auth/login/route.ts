@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Set httpOnly cookie for security
-    cookies().set('auth_token', jwt, {
+    const cookieStore = await cookies();
+    cookieStore.set('auth_token', jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

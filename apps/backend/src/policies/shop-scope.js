@@ -76,7 +76,11 @@ module.exports = async (policyContext, config, { strapi }) => {
       // Skip shop-scope check for the shop entity itself
       if (contentType === 'shop') {
         // Users can only update their own shop
-        if (parseInt(entityId) !== userShop.id) {
+        // Normalize both IDs to numbers for comparison
+        const normalizedEntityId = typeof entityId === 'string' ? parseInt(entityId, 10) : entityId;
+        const normalizedShopId = typeof userShop.id === 'string' ? parseInt(userShop.id, 10) : userShop.id;
+
+        if (normalizedEntityId !== normalizedShopId) {
           strapi.log.warn(`User ${user.id} tried to modify shop ${entityId} but owns shop ${userShop.id}`);
           return false;
         }
@@ -99,7 +103,11 @@ module.exports = async (policyContext, config, { strapi }) => {
 
         const entityShopId = typeof entity.shop === 'object' ? entity.shop.id : entity.shop;
 
-        if (entityShopId !== userShop.id) {
+        // Normalize both IDs to numbers for comparison
+        const normalizedEntityShopId = typeof entityShopId === 'string' ? parseInt(entityShopId, 10) : entityShopId;
+        const normalizedUserShopId = typeof userShop.id === 'string' ? parseInt(userShop.id, 10) : userShop.id;
+
+        if (normalizedEntityShopId !== normalizedUserShopId) {
           strapi.log.warn(
             `User ${user.id} tried to access ${contentType} ${entityId} belonging to shop ${entityShopId}`
           );

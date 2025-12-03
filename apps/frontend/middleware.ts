@@ -35,12 +35,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Rewrite to storefront with subdomain parameter
-    const rewriteUrl = new URL(pathname, request.url);
-    rewriteUrl.searchParams.set('subdomain', subdomain);
+    // Rewrite to storefront with subdomain in custom header
+    const response = NextResponse.rewrite(new URL(pathname, request.url));
+    response.headers.set('x-subdomain', subdomain);
 
-    // Rewrite to (storefront) route group
-    return NextResponse.rewrite(new URL(`${pathname}${rewriteUrl.search}`, request.url));
+    return response;
   }
 
   // DASHBOARD ROUTING
