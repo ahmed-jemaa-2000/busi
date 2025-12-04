@@ -72,7 +72,11 @@ export default function PresetCard({ preset, isSelected, onPreview, onApply }: P
       initial="rest"
       whileHover="hover"
       animate="rest"
-      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white"
+      className={`group relative overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
+        isSelected
+          ? 'border-2 border-primary shadow-lg shadow-primary/20 ring-4 ring-primary/10'
+          : 'border border-gray-200'
+      }`}
     >
       {/* Screenshot/Preview Image */}
       <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
@@ -151,6 +155,26 @@ export default function PresetCard({ preset, isSelected, onPreview, onApply }: P
         {/* Name & Description */}
         <h3 className="text-lg font-bold text-gray-900">{preset.name}</h3>
         <p className="mt-1 line-clamp-2 text-sm text-gray-600">{preset.description}</p>
+
+        {/* Changes Chip - Key Differences */}
+        {preset.changes && preset.changes.length > 0 && (
+          <div className="mt-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 p-3 border border-blue-100">
+            <p className="text-xs font-semibold uppercase tracking-wide text-blue-900 mb-1.5 flex items-center gap-1">
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Key Changes
+            </p>
+            <ul className="space-y-0.5">
+              {preset.changes.slice(0, 3).map((change, index) => (
+                <li key={index} className="flex items-start gap-1.5 text-xs text-gray-700">
+                  <span className="text-blue-600 font-bold">+</span>
+                  <span>{change}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Tags */}
         <div className="mt-3 flex flex-wrap gap-2">

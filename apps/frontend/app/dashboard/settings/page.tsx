@@ -24,6 +24,7 @@ export default function SettingsPage() {
     secondaryColor: '#F59E0B',
     font: 'inter' as const,
     template: 'minimal' as const,
+    themeId: undefined as string | undefined,
     heroStyle: 'big-banner' as const,
     cardStyle: 'rounded' as const,
     whatsappNumber: '',
@@ -48,6 +49,7 @@ export default function SettingsPage() {
           secondaryColor: data.secondaryColor,
           font: data.font,
           template: data.template,
+          themeId: data.themeId,
           heroStyle: data.heroStyle,
           cardStyle: data.cardStyle,
           whatsappNumber: data.whatsappNumber || '',
@@ -75,6 +77,7 @@ export default function SettingsPage() {
         secondaryColor: formData.secondaryColor,
         font: formData.font,
         template: formData.template,
+        themeId: formData.themeId,
         heroStyle: formData.heroStyle,
         cardStyle: formData.cardStyle,
       };
@@ -231,13 +234,21 @@ export default function SettingsPage() {
               setFormData({
                 ...formData,
                 template: preset.template,
+                themeId: preset.themeId,
                 heroStyle: preset.heroStyle,
                 cardStyle: preset.cardStyle,
                 primaryColor: preset.primaryColor,
                 secondaryColor: preset.secondaryColor,
                 font: preset.font,
               });
-              toast.success(`${preset.name} preset applied`);
+              // Note: The actual save happens when user clicks "Save Changes"
+            }}
+            currentPreset={{
+              template: formData.template,
+              primaryColor: formData.primaryColor,
+              secondaryColor: formData.secondaryColor,
+              font: formData.font,
+              themeId: formData.themeId,
             }}
           />
         </TabPanel>

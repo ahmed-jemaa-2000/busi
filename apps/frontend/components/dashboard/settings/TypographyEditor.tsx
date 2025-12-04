@@ -1,7 +1,6 @@
 'use client';
 
 import type { ShopFont } from '@busi/types';
-import { FONT_FAMILIES } from '@/components/shared/ThemeProvider';
 
 interface TypographyEditorProps {
   font: ShopFont;

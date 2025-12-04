@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ThemePreset } from '@/lib/constants/presets';
+import { themeDefinitions } from '@/components/shared/ThemeProvider';
 
 interface PresetPreviewModalProps {
   preset: ThemePreset | null;
@@ -202,39 +203,54 @@ export default function PresetPreviewModal({ preset, isOpen, onClose, onApply }:
                     </div>
                   </div>
 
+                  {/* Key Changes */}
+                  {preset.changes && preset.changes.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">Key Differences</h3>
+                      <div className="rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 p-3 border border-blue-100">
+                        <ul className="space-y-1.5">
+                          {preset.changes.map((change, index) => (
+                            <li key={index} className="flex items-start gap-2 text-xs text-gray-700">
+                              <span className="text-blue-600 font-bold mt-0.5">+</span>
+                              <span>{change}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
                   <div>
-                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Design Elements</h3>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Theme Tokens</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Primary Color</span>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-6 w-6 rounded-full border-2 border-white shadow-sm ring-1 ring-gray-200"
-                            style={{ backgroundColor: preset.values.primaryColor }}
-                          />
-                          <span className="font-mono text-xs text-gray-500">{preset.values.primaryColor}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Secondary Color</span>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-6 w-6 rounded-full border-2 border-white shadow-sm ring-1 ring-gray-200"
-                            style={{ backgroundColor: preset.values.secondaryColor }}
-                          />
-                          <span className="font-mono text-xs text-gray-500">{preset.values.secondaryColor}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Font Family</span>
+                        <span className="text-sm text-gray-600">Button Style</span>
                         <span className="text-sm font-medium capitalize text-gray-900">
-                          {preset.values.font}
+                          {themeDefinitions[preset.themeId]?.buttonStyle || 'pill'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Template Style</span>
+                        <span className="text-sm text-gray-600">Navigation</span>
                         <span className="text-sm font-medium capitalize text-gray-900">
-                          {preset.values.template}
+                          {themeDefinitions[preset.themeId]?.navStyle || 'pill'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Spacing</span>
+                        <span className="text-sm font-medium capitalize text-gray-900">
+                          {themeDefinitions[preset.themeId]?.spacingScale || 'normal'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Shadows</span>
+                        <span className="text-sm font-medium capitalize text-gray-900">
+                          {themeDefinitions[preset.themeId]?.shadowDepth || 'subtle'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Card Style</span>
+                        <span className="text-sm font-medium capitalize text-gray-900">
+                          {themeDefinitions[preset.themeId]?.cardStyle || 'elevated'}
                         </span>
                       </div>
                     </div>

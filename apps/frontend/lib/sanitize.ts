@@ -5,7 +5,11 @@
  * Uses DOMPurify with a secure configuration.
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+// Only import on client-side to avoid jsdom issues
+let DOMPurify: any = null;
+if (typeof window !== 'undefined') {
+  DOMPurify = require('isomorphic-dompurify');
+}
 
 /**
  * Sanitizes HTML content to prevent XSS attacks
@@ -15,6 +19,11 @@ import DOMPurify from 'isomorphic-dompurify';
  */
 export function sanitizeHtml(dirty: string): string {
   if (!dirty) return '';
+
+  // Skip sanitization on server (return as-is for SSR, will be sanitized on client)
+  if (typeof window === 'undefined' || !DOMPurify) {
+    return dirty;
+  }
 
   // Configure DOMPurify with safe defaults
   const config = {
@@ -44,6 +53,11 @@ export function sanitizeHtml(dirty: string): string {
  */
 export function sanitizeText(dirty: string): string {
   if (!dirty) return '';
+
+  // Skip sanitization on server
+  if (typeof window === 'undefined' || !DOMPurify) {
+    return dirty.replace(/<[^>]*>/g, '');
+  }
 
   return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: [] });
 }

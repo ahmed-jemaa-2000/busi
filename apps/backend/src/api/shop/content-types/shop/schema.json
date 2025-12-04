@@ -61,6 +61,11 @@
       "enum": ["minimal", "boutique", "kids", "street"],
       "default": "minimal"
     },
+    "themeId": {
+      "type": "enumeration",
+      "enum": ["soft-pastel", "monochrome-editorial", "high-contrast-dark", "vivid-accent", "brutalist", "glassmorphic"],
+      "required": false
+    },
     "heroStyle": {
       "type": "enumeration",
       "enum": ["big-banner", "small-hero", "carousel"],

@@ -2,12 +2,16 @@ import type { ShopTemplate, ShopHeroStyle, ShopCardStyle, ShopFont } from '@busi
 
 export interface ThemePreset {
   id: string;
+  themeId: string; // Maps to ThemeProvider theme definition
   name: string;
   description: string;
   category: 'fashion' | 'electronics' | 'food' | 'handmade' | 'beauty' | 'general';
   style: 'minimal' | 'bold' | 'elegant' | 'playful';
   colorScheme: 'light' | 'dark' | 'colorful' | 'monochrome';
   badge?: 'popular' | 'premium' | 'new';
+
+  // Key differences from other presets
+  changes: string[]; // 3 key visual differences
 
   // Visual assets
   screenshot: string;
@@ -17,7 +21,7 @@ export interface ThemePreset {
   bestFor: string[];
   mood: string[];
 
-  // Configuration
+  // Configuration (deprecated - using themeId now)
   values: {
     template: ShopTemplate;
     heroStyle: ShopHeroStyle;
@@ -29,138 +33,150 @@ export interface ThemePreset {
 }
 
 export const THEME_PRESETS: ThemePreset[] = [
-  // 1. Modern Minimal - Clean & Professional
+  // 1. Soft Pastel — rounded + airy + gentle shadows
   {
-    id: 'modern-minimal',
-    name: 'Modern Minimal',
-    description: 'Clean lines, ample whitespace, and product-first design. Perfect for fashion and lifestyle brands that want a professional, modern look.',
-    category: 'fashion',
-    style: 'minimal',
-    colorScheme: 'monochrome',
-    badge: 'popular',
-    screenshot: '/presets/modern-minimal-full.jpg',
-    thumbnail: '/presets/modern-minimal-thumb.jpg',
-    bestFor: ['Fashion', 'Lifestyle', 'General Stores'],
-    mood: ['Professional', 'Clean', 'Modern'],
-    values: {
-      template: 'minimal',
-      heroStyle: 'full-image',
-      cardStyle: 'clean',
-      primaryColor: '#111827',
-      secondaryColor: '#F3F4F6',
-      font: 'inter',
-    },
-  },
-
-  // 2. Luxury Boutique - Sophisticated & Premium
-  {
-    id: 'boutique-luxe',
-    name: 'Luxury Boutique',
-    description: 'Sophisticated and elegant with warm tones and refined spacing. Ideal for luxury boutiques, high-end fashion, and premium products.',
-    category: 'fashion',
-    style: 'elegant',
-    colorScheme: 'light',
-    badge: 'premium',
-    screenshot: '/presets/boutique-luxe-full.jpg',
-    thumbnail: '/presets/boutique-luxe-thumb.jpg',
-    bestFor: ['Luxury Boutiques', 'High-end Fashion', 'Jewelry', 'Premium Goods'],
-    mood: ['Sophisticated', 'Elegant', 'Premium', 'Refined'],
-    values: {
-      template: 'boutique',
-      heroStyle: 'split',
-      cardStyle: 'elevated',
-      primaryColor: '#92400E',
-      secondaryColor: '#FEF3C7',
-      font: 'playfair',
-    },
-  },
-
-  // 3. Bold Urban - High Energy & Striking
-  {
-    id: 'street-bold',
-    name: 'Bold Urban',
-    description: 'High contrast design with strong borders and dramatic visuals. Perfect for streetwear, urban fashion, and youth-oriented brands.',
-    category: 'fashion',
-    style: 'bold',
-    colorScheme: 'dark',
-    badge: 'new',
-    screenshot: '/presets/street-bold-full.jpg',
-    thumbnail: '/presets/street-bold-thumb.jpg',
-    bestFor: ['Streetwear', 'Urban Fashion', 'Electronics', 'Youth Brands'],
-    mood: ['Bold', 'Energetic', 'Urban', 'Striking'],
-    values: {
-      template: 'playful',
-      heroStyle: 'video',
-      cardStyle: 'bordered',
-      primaryColor: '#111827',
-      secondaryColor: '#F97316',
-      font: 'montserrat',
-    },
-  },
-
-  // 4. Soft & Elegant - Gentle & Feminine
-  {
-    id: 'beauty-soft',
-    name: 'Soft & Elegant',
-    description: 'Soft pastels, gentle aesthetics, and refined details. Designed for beauty, cosmetics, wellness, and feminine products.',
+    id: 'soft-pastel',
+    themeId: 'soft-pastel',
+    name: 'Soft Pastel',
+    description: 'Rounded corners + airy spacing + subtle shadows. Perfect for beauty, wellness, and gentle aesthetics.',
     category: 'beauty',
     style: 'elegant',
     colorScheme: 'light',
-    screenshot: '/presets/beauty-soft-full.jpg',
-    thumbnail: '/presets/beauty-soft-thumb.jpg',
+    badge: 'popular',
+    changes: ['Pill buttons', 'Large rounded corners', 'Airy spacing'],
+    screenshot: '/presets/soft-pastel-full.jpg',
+    thumbnail: '/presets/soft-pastel-thumb.jpg',
     bestFor: ['Beauty Products', 'Cosmetics', 'Wellness', 'Feminine Brands'],
     mood: ['Soft', 'Gentle', 'Feminine', 'Elegant'],
     values: {
       template: 'boutique',
-      heroStyle: 'minimal',
+      heroStyle: 'centered',
       cardStyle: 'elevated',
       primaryColor: '#EC4899',
-      secondaryColor: '#FCE7F3',
+      secondaryColor: '#A78BFA',
       font: 'poppins',
     },
   },
 
-  // 5. Playful Bright - Fun & Energetic
+  // 2. Editorial — monochrome + serif + underline nav
   {
-    id: 'playful-kids',
-    name: 'Playful Bright',
-    description: 'Vibrant colors, rounded shapes, and fun animations. Great for children\'s products, toys, and family-friendly stores.',
-    category: 'general',
-    style: 'playful',
-    colorScheme: 'colorful',
-    screenshot: '/presets/playful-kids-full.jpg',
-    thumbnail: '/presets/playful-kids-thumb.jpg',
-    bestFor: ['Kids Products', 'Toys', 'Fun Brands', 'Family Stores'],
-    mood: ['Fun', 'Cheerful', 'Playful', 'Energetic'],
-    values: {
-      template: 'playful',
-      heroStyle: 'slider',
-      cardStyle: 'bordered',
-      primaryColor: '#06B6D4',
-      secondaryColor: '#F9A8D4',
-      font: 'poppins',
-    },
-  },
-
-  // 6. Dark Premium - Luxurious & Modern
-  {
-    id: 'beauty-dark',
-    name: 'Dark Premium',
-    description: 'Luxurious dark theme with metallic accents and dramatic shadows. Perfect for premium beauty, tech products, and modern luxury brands.',
-    category: 'beauty',
-    style: 'elegant',
-    colorScheme: 'dark',
+    id: 'monochrome-editorial',
+    themeId: 'monochrome-editorial',
+    name: 'Editorial',
+    description: 'Monochrome + serif headlines + underline nav. Clean editorial design for sophisticated brands.',
+    category: 'fashion',
+    style: 'minimal',
+    colorScheme: 'monochrome',
     badge: 'premium',
-    screenshot: '/presets/beauty-dark-full.jpg',
-    thumbnail: '/presets/beauty-dark-thumb.jpg',
-    bestFor: ['Premium Beauty', 'Tech Products', 'Luxury Cosmetics', 'Modern Brands'],
-    mood: ['Luxurious', 'Sophisticated', 'Premium', 'Modern'],
+    changes: ['Serif headlines', 'Underline navigation', 'Flat design with no shadows'],
+    screenshot: '/presets/editorial-full.jpg',
+    thumbnail: '/presets/editorial-thumb.jpg',
+    bestFor: ['Luxury Boutiques', 'High-end Fashion', 'Editorial Brands'],
+    mood: ['Sophisticated', 'Editorial', 'Refined', 'Timeless'],
     values: {
       template: 'minimal',
-      heroStyle: 'full-image',
+      heroStyle: 'split',
+      cardStyle: 'flat',
+      primaryColor: '#000000',
+      secondaryColor: '#404040',
+      font: 'playfair',
+    },
+  },
+
+  // 3. Bold Street — neon + chunky sans + heavy shadows
+  {
+    id: 'high-contrast-dark',
+    themeId: 'high-contrast-dark',
+    name: 'Bold Street',
+    description: 'Neon accents + chunky sans + heavy shadows. High-energy design for urban and youth brands.',
+    category: 'fashion',
+    style: 'bold',
+    colorScheme: 'dark',
+    badge: 'new',
+    changes: ['Neon pink accent', 'Square corners', 'Heavy dramatic shadows'],
+    screenshot: '/presets/bold-street-full.jpg',
+    thumbnail: '/presets/bold-street-thumb.jpg',
+    bestFor: ['Streetwear', 'Urban Fashion', 'Electronics', 'Youth Brands'],
+    mood: ['Bold', 'Energetic', 'Urban', 'Striking'],
+    values: {
+      template: 'playful',
+      heroStyle: 'full-bleed',
+      cardStyle: 'outlined',
+      primaryColor: '#FFFFFF',
+      secondaryColor: '#FF0080',
+      font: 'inter',
+    },
+  },
+
+  // 4. Vivid Accent — geometric + pill buttons + strong CTA
+  {
+    id: 'vivid-accent',
+    themeId: 'vivid-accent',
+    name: 'Vivid Accent',
+    description: 'Geometric sans + pill buttons + strong CTAs. Eye-catching design with vibrant accents.',
+    category: 'general',
+    style: 'bold',
+    colorScheme: 'colorful',
+    changes: ['Vibrant blue/orange accent', 'Geometric pill buttons', 'Medium shadows'],
+    screenshot: '/presets/vivid-accent-full.jpg',
+    thumbnail: '/presets/vivid-accent-thumb.jpg',
+    bestFor: ['General Stores', 'E-commerce', 'Tech Products', 'Modern Brands'],
+    mood: ['Energetic', 'Modern', 'Vibrant', 'Professional'],
+    values: {
+      template: 'minimal',
+      heroStyle: 'centered',
       cardStyle: 'elevated',
-      primaryColor: '#1F2937',
-      secondaryColor: '#D97706',
+      primaryColor: '#0EA5E9',
+      secondaryColor: '#F59E0B',
+      font: 'montserrat',
+    },
+  },
+
+  // 5. Brutalist — big type + square + dense spacing
+  {
+    id: 'brutalist',
+    themeId: 'brutalist',
+    name: 'Brutalist',
+    description: 'Big type + square corners + dense spacing. Raw, bold design with hard drop shadows.',
+    category: 'fashion',
+    style: 'bold',
+    colorScheme: 'colorful',
+    changes: ['Heavy 900 weight headlines', 'Hard drop shadows (8px offset)', 'Dense spacing'],
+    screenshot: '/presets/brutalist-full.jpg',
+    thumbnail: '/presets/brutalist-thumb.jpg',
+    bestFor: ['Artistic Brands', 'Bold Fashion', 'Statement Products'],
+    mood: ['Bold', 'Raw', 'Artistic', 'Unconventional'],
+    values: {
+      template: 'playful',
+      heroStyle: 'full-bleed',
+      cardStyle: 'outlined',
+      primaryColor: '#FFFF00',
+      secondaryColor: '#000000',
+      font: 'inter',
+    },
+  },
+
+  // 6. Glassmorphic — blurred + thin borders + gradients
+  {
+    id: 'glassmorphic',
+    themeId: 'glassmorphic',
+    name: 'Glassmorphic',
+    description: 'Blurred surfaces + thin borders + subtle gradients. Modern glass effect with depth.',
+    category: 'beauty',
+    style: 'elegant',
+    colorScheme: 'colorful',
+    badge: 'premium',
+    changes: ['12px blur effect', 'Gradient background', 'Glass card surfaces'],
+    screenshot: '/presets/glassmorphic-full.jpg',
+    thumbnail: '/presets/glassmorphic-thumb.jpg',
+    bestFor: ['Premium Beauty', 'Modern Brands', 'Tech Products', 'Luxury Cosmetics'],
+    mood: ['Modern', 'Sophisticated', 'Premium', 'Innovative'],
+    values: {
+      template: 'minimal',
+      heroStyle: 'centered',
+      cardStyle: 'glass',
+      primaryColor: '#8B5CF6',
+      secondaryColor: '#06B6D4',
       font: 'inter',
     },
   },

@@ -1010,6 +1010,16 @@ export interface ApiShopShop extends Schema.CollectionType {
       Attribute.DefaultTo<'inter'>;
     template: Attribute.Enumeration<['minimal', 'boutique', 'kids', 'street']> &
       Attribute.DefaultTo<'minimal'>;
+    themeId: Attribute.Enumeration<
+      [
+        'soft-pastel',
+        'monochrome-editorial',
+        'high-contrast-dark',
+        'vivid-accent',
+        'brutalist',
+        'glassmorphic'
+      ]
+    >;
     heroStyle: Attribute.Enumeration<['big-banner', 'small-hero', 'carousel']> &
       Attribute.DefaultTo<'big-banner'>;
     cardStyle: Attribute.Enumeration<['rounded', 'square', 'elevated']> &

@@ -10,12 +10,13 @@ import PresetFilter, { type FilterState } from './PresetFilter';
 import PresetPreviewModal from './PresetPreviewModal';
 
 interface PresetGalleryProps {
-  onApplyPreset: (preset: ThemePreset['values'] & { name: string }) => void;
+  onApplyPreset: (preset: ThemePreset['values'] & { name: string; themeId: string }) => void;
   currentPreset?: {
     template: string;
     primaryColor: string;
     secondaryColor: string;
     font: string;
+    themeId?: string;
   };
 }
 
@@ -72,6 +73,10 @@ export default function PresetGallery({ onApplyPreset, currentPreset }: PresetGa
   // Check if preset is currently selected
   const isPresetSelected = (preset: ThemePreset) => {
     if (!currentPreset) return false;
+    // Prefer themeId matching, fallback to old values matching
+    if (currentPreset.themeId) {
+      return preset.themeId === currentPreset.themeId;
+    }
     return (
       preset.values.template === currentPreset.template &&
       preset.values.primaryColor === currentPreset.primaryColor &&
@@ -81,9 +86,10 @@ export default function PresetGallery({ onApplyPreset, currentPreset }: PresetGa
   };
 
   const handleApplyPreset = (preset: ThemePreset) => {
-    onApplyPreset({ ...preset.values, name: preset.name });
-    toast.success(`${preset.name} preset applied successfully!`, {
-      description: 'You can further customize it in the other tabs.',
+    onApplyPreset({ ...preset.values, name: preset.name, themeId: preset.themeId });
+    toast.success(`${preset.name} theme applied successfully!`, {
+      description: 'Your store will now use the new design system. Visit your store to see the changes!',
+      duration: 5000,
     });
   };
 

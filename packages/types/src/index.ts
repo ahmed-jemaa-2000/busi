@@ -4,6 +4,7 @@ export type ShopHeroStyle = 'big-banner' | 'small-hero' | 'carousel';
 export type ShopCardStyle = 'rounded' | 'square' | 'elevated';
 export type ShopFont = 'inter' | 'playfair' | 'montserrat' | 'roboto' | 'poppins';
 export type ShopPlan = 'free' | 'starter' | 'pro';
+export type ShopThemeId = 'soft-pastel' | 'monochrome-editorial' | 'high-contrast-dark' | 'vivid-accent' | 'brutalist' | 'glassmorphic';
 
 export interface Shop {
   id: number;
@@ -16,6 +17,7 @@ export interface Shop {
   secondaryColor: string;
   font: ShopFont;
   template: ShopTemplate;
+  themeId?: ShopThemeId; // New: Maps to ThemeProvider theme definitions
   heroStyle: ShopHeroStyle;
   cardStyle: ShopCardStyle;
   isActive: boolean;
