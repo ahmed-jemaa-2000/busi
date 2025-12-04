@@ -264,6 +264,15 @@ export default function SettingsPage() {
             template={formData.template}
             heroStyle={formData.heroStyle}
             cardStyle={formData.cardStyle}
+            theme={{
+              name: formData.name,
+              primaryColor: formData.primaryColor,
+              secondaryColor: formData.secondaryColor,
+              font: formData.font,
+              template: formData.template,
+              heroStyle: formData.heroStyle,
+              cardStyle: formData.cardStyle,
+            }}
             onChange={(layout) => setFormData({ ...formData, ...layout })}
           />
         </TabPanel>

@@ -1,311 +1,290 @@
 'use client';
 
-import type { ShopTemplate, ShopHeroStyle, ShopCardStyle } from '@busi/types';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import type { ShopTemplate, ShopHeroStyle, ShopCardStyle, ShopTheme } from '@busi/types';
+import TemplateStyleSelector from './TemplateStyleSelector';
+import HeroSectionBuilder from './HeroSectionBuilder';
+import ProductCardConfigurator from './ProductCardConfigurator';
+import SpacingControls from './SpacingControls';
+import LivePreviewPane from './LivePreviewPane';
+import { Sparkles, Layout, Sliders, Eye } from 'lucide-react';
 
 interface LayoutDesignerProps {
   template: ShopTemplate;
   heroStyle: ShopHeroStyle;
   cardStyle: ShopCardStyle;
+  theme: ShopTheme; // Full theme for preview
   onChange: (layout: {
     template?: ShopTemplate;
     heroStyle?: ShopHeroStyle;
     cardStyle?: ShopCardStyle;
+    spacing?: {
+      productGap: number;
+      sectionPadding: number;
+      cardPadding: number;
+      borderRadius: number;
+    };
   }) => void;
 }
 
-const TEMPLATES = [
-  {
-    value: 'minimal' as const,
-    label: 'Minimal',
-    description: 'Clean and simple design with ample whitespace',
-    accent: 'from-slate-50 via-white to-slate-100',
-    features: ['Product-first', 'Clean lines', 'Neutral tones']
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
   },
-  {
-    value: 'boutique' as const,
-    label: 'Boutique',
-    description: 'Elegant and curated with sophisticated spacing',
-    accent: 'from-amber-50 via-white to-rose-50',
-    features: ['Luxury feel', 'Editorial style', 'Warm colors']
-  },
-  {
-    value: 'kids' as const,
-    label: 'Kids',
-    description: 'Playful and colorful with rounded shapes',
-    accent: 'from-sky-50 via-pink-50 to-amber-50',
-    features: ['Fun animations', 'Bright colors', 'Rounded corners']
-  },
-  {
-    value: 'street' as const,
-    label: 'Street',
-    description: 'Bold and urban with high contrast',
-    accent: 'from-gray-900 via-gray-800 to-gray-700',
-    features: ['Sharp edges', 'Bold typography', 'High energy']
-  },
-];
+};
 
-const HERO_STYLES = [
-  {
-    value: 'big-banner' as const,
-    label: 'Big Banner',
-    description: 'Large hero section with text overlay',
-    height: 'Tall (500-600px)'
+const sectionVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
   },
-  {
-    value: 'small-hero' as const,
-    label: 'Small Hero',
-    description: 'Compact header section',
-    height: 'Short (200-300px)'
-  },
-  {
-    value: 'carousel' as const,
-    label: 'Carousel',
-    description: 'Rotating featured products slider',
-    height: 'Medium (400px)'
-  },
-];
+};
 
-const CARD_STYLES = [
-  {
-    value: 'rounded' as const,
-    label: 'Rounded',
-    description: 'Soft rounded corners (12px radius)',
-    preview: 'rounded-xl'
-  },
-  {
-    value: 'square' as const,
-    label: 'Square',
-    description: 'Sharp edges with no rounding',
-    preview: 'rounded-none'
-  },
-  {
-    value: 'elevated' as const,
-    label: 'Elevated',
-    description: 'Card with prominent shadow',
-    preview: 'rounded-xl shadow-lg'
-  },
-];
+export default function LayoutDesigner({
+  template,
+  heroStyle,
+  cardStyle,
+  theme,
+  onChange,
+}: LayoutDesignerProps) {
+  const [spacing, setSpacing] = useState({
+    productGap: 24,
+    sectionPadding: 48,
+    cardPadding: 16,
+    borderRadius: 12,
+  });
 
-export default function LayoutDesigner({ template, heroStyle, cardStyle, onChange }: LayoutDesignerProps) {
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+
+  const handleSpacingChange = (newSpacing: typeof spacing) => {
+    setSpacing(newSpacing);
+    onChange({ spacing: newSpacing });
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Template Style */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Template Style</h3>
-        <p className="mb-6 text-sm text-gray-600">
-          Choose the overall design style for your storefront. This affects spacing, animations, and overall feel.
-        </p>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {TEMPLATES.map((t) => (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => onChange({ template: t.value })}
-              className={`
-                relative overflow-hidden rounded-xl border-2 p-4 text-left transition-all
-                ${
-                  template === t.value
-                    ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                    : 'border-gray-200 hover:border-primary/40 hover:bg-gray-50'
-                }
-              `}
-            >
-              {/* Gradient Preview */}
-              <div className={`mb-4 h-24 rounded-lg bg-gradient-to-br ${t.accent} p-4 ${t.value === 'street' ? 'text-white' : 'text-gray-900'}`}>
-                <div className="text-sm font-semibold">{t.label}</div>
-                <div className={`mt-1 text-xs ${t.value === 'street' ? 'text-gray-300' : 'text-gray-600'}`}>Preview</div>
+    <div className="relative">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Layout className="w-6 h-6 text-white" />
               </div>
+              Layout Designer
+            </h2>
+            <p className="text-gray-600">
+              Craft the perfect layout for your store with visual controls and live preview
+            </p>
+          </div>
 
-              {/* Info */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-gray-900">{t.label}</h4>
-                  {template === t.value && (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white">
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-gray-600">{t.description}</p>
+          {/* Preview toggle button */}
+          <button
+            type="button"
+            onClick={() => setIsPreviewVisible(!isPreviewVisible)}
+            className={`
+              flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all shadow-sm
+              ${
+                isPreviewVisible
+                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-indigo-600 hover:text-indigo-600'
+              }
+            `}
+          >
+            <Eye className="w-5 h-5" />
+            {isPreviewVisible ? 'Hide Preview' : 'Show Live Preview'}
+          </button>
+        </div>
 
-                {/* Features */}
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {t.features.map((feature) => (
-                    <span
-                      key={feature}
-                      className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
-                    >
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </button>
-          ))}
+        {/* Quick stats */}
+        <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-gray-600">All changes are live</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <span className="text-gray-600">Visual builder mode</span>
+          </div>
         </div>
       </div>
 
-      {/* Hero Style */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Hero Section Style</h3>
-        <p className="mb-6 text-sm text-gray-600">
-          Configure how your homepage hero section appears.
-        </p>
+      {/* Main content with dynamic width based on preview */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-8"
+        style={{
+          maxWidth: isPreviewVisible ? '50%' : '100%',
+          transition: 'max-width 0.3s ease',
+        }}
+      >
+        {/* 1. Template Style Selector */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <TemplateStyleSelector
+            value={template}
+            onChange={(newTemplate) => onChange({ template: newTemplate })}
+          />
+        </motion.div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {HERO_STYLES.map((h) => (
-            <button
-              key={h.value}
-              type="button"
-              onClick={() => onChange({ heroStyle: h.value })}
-              className={`
-                rounded-xl border-2 p-4 text-left transition-all
-                ${
-                  heroStyle === h.value
-                    ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                    : 'border-gray-200 hover:border-primary/40 hover:bg-gray-50'
-                }
-              `}
-            >
-              {/* Visual Preview */}
-              <div className="mb-4 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                <div
-                  className={`
-                    bg-gradient-to-r from-primary to-primary/60 p-2
-                    ${h.value === 'big-banner' ? 'h-24' : h.value === 'small-hero' ? 'h-12' : 'h-16'}
-                  `}
-                >
-                  <div className="text-xs text-white/90">{h.height}</div>
-                </div>
-                {h.value === 'carousel' && (
-                  <div className="flex gap-1 p-2">
-                    <div className="h-8 flex-1 rounded bg-gray-200" />
-                    <div className="h-8 flex-1 rounded bg-gray-200" />
-                    <div className="h-8 flex-1 rounded bg-gray-200" />
-                  </div>
-                )}
+        {/* 2. Hero Section Builder */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <HeroSectionBuilder
+            value={heroStyle}
+            onChange={(newHeroStyle) => onChange({ heroStyle: newHeroStyle })}
+          />
+        </motion.div>
+
+        {/* 3. Product Card Configurator */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <ProductCardConfigurator
+            value={cardStyle}
+            onChange={(newCardStyle) => onChange({ cardStyle: newCardStyle })}
+          />
+        </motion.div>
+
+        {/* 4. Spacing Controls */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <SpacingControls spacing={spacing} onChange={handleSpacingChange} />
+        </motion.div>
+
+        {/* Current Configuration Summary */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 p-6"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Sliders className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Current Configuration
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl p-4 border border-indigo-100 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-1">
+                Template
               </div>
-
-              {/* Info */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-gray-900">{h.label}</h4>
-                  {heroStyle === h.value && (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">
-                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-gray-600">{h.description}</p>
+              <div className="font-bold text-gray-900 capitalize">
+                {template.replace('-', ' ')}
               </div>
-            </button>
-          ))}
-        </div>
-      </div>
+            </div>
 
-      {/* Card Style */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Product Card Style</h3>
-        <p className="mb-6 text-sm text-gray-600">
-          Choose how product cards appear in grids and lists.
-        </p>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {CARD_STYLES.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              onClick={() => onChange({ cardStyle: c.value })}
-              className={`
-                rounded-xl border-2 p-4 text-left transition-all
-                ${
-                  cardStyle === c.value
-                    ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                    : 'border-gray-200 hover:border-primary/40 hover:bg-gray-50'
-                }
-              `}
-            >
-              {/* Visual Preview */}
-              <div className="mb-4 flex gap-2">
-                <div
-                  className={`
-                    flex-1 border bg-white p-3
-                    ${c.preview}
-                  `}
-                >
-                  <div className="mb-2 aspect-square bg-gradient-to-br from-primary/20 to-primary/10" />
-                  <div className="h-2 rounded bg-gray-200" />
-                  <div className="mt-1 h-2 w-2/3 rounded bg-gray-200" />
-                </div>
+            <div className="bg-white rounded-xl p-4 border border-indigo-100 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-1">
+                Hero Style
               </div>
-
-              {/* Info */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-gray-900">{c.label}</h4>
-                  {cardStyle === c.value && (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">
-                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-gray-600">{c.description}</p>
+              <div className="font-bold text-gray-900 capitalize">
+                {heroStyle.replace('-', ' ')}
               </div>
-            </button>
-          ))}
-        </div>
-      </div>
+            </div>
 
-      {/* Layout Summary */}
-      <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Current Layout Configuration</h3>
+            <div className="bg-white rounded-xl p-4 border border-indigo-100 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-1">
+                Card Style
+              </div>
+              <div className="font-bold text-gray-900 capitalize">
+                {cardStyle}
+              </div>
+            </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Template</div>
-            <div className="mt-1 font-semibold capitalize text-gray-900">
-              {TEMPLATES.find(t => t.value === template)?.label}
+            <div className="bg-white rounded-xl p-4 border border-indigo-100 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-1">
+                Grid Gap
+              </div>
+              <div className="font-bold text-gray-900">
+                {spacing.productGap}px
+              </div>
             </div>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Hero Style</div>
-            <div className="mt-1 font-semibold capitalize text-gray-900">
-              {HERO_STYLES.find(h => h.value === heroStyle)?.label}
-            </div>
-          </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Card Style</div>
-            <div className="mt-1 font-semibold capitalize text-gray-900">
-              {CARD_STYLES.find(c => c.value === cardStyle)?.label}
-            </div>
-          </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Tips */}
-      <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-        <div className="flex items-start gap-3">
-          <svg className="h-5 w-5 flex-shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="flex-1 text-sm text-green-900">
-            <div className="font-semibold">Layout Best Practices:</div>
-            <ul className="mt-1 list-inside list-disc space-y-0.5">
-              <li><strong>Minimal</strong> + Big Banner = Great for showcasing hero products</li>
-              <li><strong>Boutique</strong> + Small Hero + Elevated cards = Luxury feel</li>
-              <li><strong>Kids</strong> + Carousel + Rounded cards = Fun and engaging</li>
-              <li><strong>Street</strong> + Big Banner + Square cards = Bold and modern</li>
-            </ul>
+        {/* Pro Tips */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-2xl border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-green-900 mb-2">
+                Layout Combination Tips
+              </h3>
+              <div className="space-y-2 text-sm text-green-800">
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <p>
+                    <strong>Modern Minimal + Full Image Hero + Clean Cards</strong> - Perfect
+                    for fashion and lifestyle brands
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <p>
+                    <strong>Boutique Luxe + Split Layout + Elevated Cards</strong> - Ideal for
+                    premium products and luxury items
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <p>
+                    <strong>Playful + Video Hero + Bold Bordered Cards</strong> - Great for
+                    kids products or creative brands
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <p>
+                    <strong>Bold + Slider Hero + Compact Cards</strong> - Excellent for
+                    high-energy stores with many products
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+
+        {/* Mobile tip */}
+        <motion.div
+          variants={sectionVariants}
+          className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900"
+        >
+          <p>
+            <strong>💡 Pro Tip:</strong> Use the live preview to see how your layout looks on
+            different devices. Click "Show Live Preview" and toggle between Desktop, Tablet,
+            and Mobile views.
+          </p>
+        </motion.div>
+      </motion.div>
+
+      {/* Live Preview Pane */}
+      <LivePreviewPane
+        theme={theme}
+        isVisible={isPreviewVisible}
+        onToggle={() => setIsPreviewVisible(!isPreviewVisible)}
+      />
     </div>
   );
 }
