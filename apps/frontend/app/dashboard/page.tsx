@@ -62,8 +62,8 @@ export default async function DashboardHome() {
 
   // Calculate total revenue from completed orders
   const totalRevenue = orders
-    .filter(o => o.status === 'completed')
-    .reduce((acc, curr) => acc + (curr.total || 0), 0);
+    .filter(o => ['confirmed', 'shipped', 'delivered'].includes(o.status))
+    .reduce((acc, curr) => acc + (curr.items?.reduce((sum, item) => sum + item.totalPrice, 0) || 0), 0);
 
   return (
     <div className="space-y-8">

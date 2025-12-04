@@ -76,7 +76,7 @@ export default function OrdersPage() {
   };
 
   const calculateTotal = (order: Order) => {
-    return order.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    return order.items?.reduce((sum, item) => sum + item.totalPrice, 0) || 0;
   };
 
   if (loading) {
@@ -161,9 +161,8 @@ export default function OrdersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          STATUS_COLORS[order.status]
-                        }`}
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${STATUS_COLORS[order.status]
+                          }`}
                       >
                         {STATUS_LABELS[order.status]}
                       </span>
@@ -216,7 +215,7 @@ export default function OrdersPage() {
             <div className="mb-6">
               <h3 className="font-semibold text-lg mb-2">Order Items</h3>
               <div className="space-y-2">
-                {selectedOrder.items.map((item, index) => {
+                {selectedOrder.items?.map((item, index) => {
                   const product = typeof item.product === 'object' ? item.product : null;
                   return (
                     <div key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded">

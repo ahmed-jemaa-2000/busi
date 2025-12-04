@@ -49,10 +49,12 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
                         </div>
                         <div className="text-right">
                             <p className="font-medium text-gray-900">
-                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TND' }).format(order.total)}
+                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TND' }).format(
+                                    order.items?.reduce((sum, item) => sum + item.totalPrice, 0) || 0
+                                )}
                             </p>
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize
-                ${order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                ${order.status === 'delivered' ? 'bg-green-100 text-green-800' :
                                     order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                         order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                                             'bg-gray-100 text-gray-800'}`}

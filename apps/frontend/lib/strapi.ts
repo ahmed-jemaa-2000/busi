@@ -10,6 +10,10 @@ import type {
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
+export function getStrapiURL() {
+  return STRAPI_URL;
+}
+
 interface FetchOptions extends RequestInit {
   token?: string;
 }
