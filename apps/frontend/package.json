@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@monaco-editor/react": "^4.7.0",
+    "clsx": "^2.1.1",
     "framer-motion": "^12.23.25",
     "isomorphic-dompurify": "^2.16.0",
     "lucide-react": "^0.555.0",
@@ -21,6 +22,7 @@
     "react-dom": "^18.3.0",
     "react-hook-form": "^7.68.0",
     "sonner": "^1.4.0",
+    "tailwind-merge": "^3.4.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {

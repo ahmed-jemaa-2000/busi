@@ -21,7 +21,7 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
     }
 
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="glass-card rounded-xl overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                 <h2 className="font-semibold text-gray-900">Recent Orders</h2>
                 <Link

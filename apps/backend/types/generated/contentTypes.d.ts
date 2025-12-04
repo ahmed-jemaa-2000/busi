@@ -870,7 +870,7 @@ export interface ApiOrderOrder extends Schema.CollectionType {
         number
       >;
     status: Attribute.Enumeration<
-      ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
+      ['pending', 'confirmed', 'shipped', 'delivered', 'completed', 'cancelled']
     > &
       Attribute.DefaultTo<'pending'>;
     paymentMethod: Attribute.Enumeration<['cod', 'bank_transfer', 'other']> &

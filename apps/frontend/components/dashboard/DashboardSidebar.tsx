@@ -20,6 +20,7 @@ export default function DashboardSidebar({ user, shopId }: DashboardSidebarProps
     { name: 'Overview', href: '/dashboard', icon: '📊' },
     { name: 'Products', href: '/dashboard/products', icon: '📦' },
     { name: 'Orders', href: '/dashboard/orders', icon: '🛍️' },
+    { name: 'Delivery', href: '/dashboard/delivery', icon: '🚚' },
     { name: 'Categories', href: '/dashboard/categories', icon: '🏷️' },
     // TODO: Implement customers page
     // { name: 'Customers', href: '/dashboard/customers', icon: '👥' },

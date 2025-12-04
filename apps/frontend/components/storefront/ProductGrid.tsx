@@ -1,6 +1,9 @@
+'use client';
+
 import type { Shop, Product } from '@busi/types';
 import ProductCard from './ProductCard';
 import EmptyState from '@/components/ui/EmptyState';
+import { motion } from 'framer-motion';
 
 interface ProductGridProps {
   products: Product[];
@@ -22,18 +25,20 @@ export default function ProductGrid({ products, shop }: ProductGridProps) {
     );
   }
 
-  const gridClass = `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8`;
-
   return (
-    <div id="products" className={`${gridClass} animate-fade-in`}>
+    <div id="products" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       {products.map((product, index) => (
-        <div
+        <motion.div
           key={product.id}
-          className="animate-slide-up"
-          style={{ animationDelay: `${index * 0.05}s` }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          whileHover={{ y: -8 }}
+          className="group"
         >
           <ProductCard product={product} shop={shop} />
-        </div>
+        </motion.div>
       ))}
     </div>
   );

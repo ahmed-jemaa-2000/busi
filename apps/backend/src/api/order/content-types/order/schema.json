@@ -35,12 +35,23 @@
     },
     "status": {
       "type": "enumeration",
-      "enum": ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+      "enum": [
+        "pending",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "completed",
+        "cancelled"
+      ],
       "default": "pending"
     },
     "paymentMethod": {
       "type": "enumeration",
-      "enum": ["cod", "bank_transfer", "other"],
+      "enum": [
+        "cod",
+        "bank_transfer",
+        "other"
+      ],
       "default": "cod"
     },
     "notes": {

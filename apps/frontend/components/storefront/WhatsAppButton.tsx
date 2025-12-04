@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import type { Product, Shop } from '@busi/types';
 import { generateWhatsAppUrl, isValidWhatsAppNumber } from '@/lib/whatsapp';
 import { Loader2 } from 'lucide-react';
+import { TUNISIAN_GOVERNORATES } from '@/lib/constants/tunisia';
 
 interface WhatsAppButtonProps {
   product: Product;
@@ -21,7 +22,8 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    address: '',
+    governorate: '',
+    city: '',
   });
 
   const requiresSize = Array.isArray(product.sizes) && product.sizes.length > 0;
@@ -47,7 +49,7 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
   const validateForm = () => {
     const customerName = formData.name.trim();
     const customerPhone = normalizePhone(formData.phone);
-    const customerAddress = formData.address.trim();
+    const customerAddress = `${formData.governorate} - ${formData.city}`.trim();
 
     if (customerName.length < 2) {
       toast.error('Please enter your full name (at least 2 characters).');
@@ -64,6 +66,11 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
       return null;
     }
 
+    if (!formData.governorate) {
+      toast.error('Please select your Governorate.');
+      return null;
+    }
+
     if (requiresSize && !selectedSize) {
       toast.error('Please select a size before continuing.');
       return null;
@@ -77,7 +84,7 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
     return {
       customerName,
       customerPhone,
-      customerAddress: customerAddress || undefined,
+      customerAddress,
     };
   };
 
@@ -133,7 +140,7 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
       toast.success('Order started! Opening WhatsApp...');
 
       // Reset form
-      setFormData({ name: '', phone: '', address: '' });
+      setFormData({ name: '', phone: '', governorate: '', city: '' });
       setSelectedSize('');
       setSelectedColor('');
 
@@ -195,8 +202,8 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     className={`group min-w-[72px] rounded-xl border px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary/40 ${selectedSize === size
-                        ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                        : 'border-gray-200 bg-white hover:border-primary/60 hover:text-primary'
+                      ? 'border-primary bg-primary/5 text-primary shadow-sm'
+                      : 'border-gray-200 bg-white hover:border-primary/60 hover:text-primary'
                       }`}
                   >
                     <span className="block text-center">{size}</span>
@@ -218,8 +225,8 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary/40 ${selectedColor === color
-                        ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                        : 'border-gray-200 bg-white hover:border-primary/60 hover:text-primary'
+                      ? 'border-primary bg-primary/5 text-primary shadow-sm'
+                      : 'border-gray-200 bg-white hover:border-primary/60 hover:text-primary'
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -304,13 +311,28 @@ export default function WhatsAppButton({ product, shop }: WhatsAppButtonProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address (Optional)</label>
-                <textarea
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Governorate *</label>
+                <select
+                  required
+                  value={formData.governorate}
+                  onChange={(e) => setFormData({ ...formData, governorate: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                  placeholder="Delivery address..."
-                  rows={2}
+                >
+                  <option value="">Select Governorate</option>
+                  {TUNISIAN_GOVERNORATES.map((gov) => (
+                    <option key={gov} value={gov}>{gov}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">City / Address (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                  placeholder="e.g. Ennasr 2, Rue Hedi Nouira..."
                 />
               </div>
 

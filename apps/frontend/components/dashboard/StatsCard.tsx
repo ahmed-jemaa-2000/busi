@@ -25,7 +25,7 @@ export default function StatsCard({
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="glass-card p-6 rounded-xl">
       <div className="flex items-start justify-between mb-4">
         <div className={`p-3 rounded-lg ${colorStyles[color]}`}>
           <span className="text-2xl">{icon}</span>

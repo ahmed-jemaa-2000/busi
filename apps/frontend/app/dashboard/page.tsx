@@ -2,8 +2,9 @@ import { getAuthToken, getUserShopId } from '@/lib/auth-server';
 import { getProductsByShop, getOrdersByShop, getCategoriesByShop, getShopById } from '@/lib/strapi';
 import StatsCard from '@/components/dashboard/StatsCard';
 import QuickActionCard from '@/components/dashboard/QuickActionCard';
-import StorefrontCard from '@/components/dashboard/StorefrontCard';
 import RecentOrders from '@/components/dashboard/RecentOrders';
+import StorefrontCard from '@/components/dashboard/StorefrontCard';
+import CashFlowCard from '@/components/dashboard/CashFlowCard';
 import Link from 'next/link';
 
 export default async function DashboardHome() {
@@ -110,6 +111,7 @@ export default async function DashboardHome() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-8">
+          <CashFlowCard orders={orders} />
           <RecentOrders orders={orders} />
 
           {/* Quick Actions */}
