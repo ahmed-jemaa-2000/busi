@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, ReactNode } from 'react';
-import type { Shop } from '@busi/types';
+import type { Shop, ShopThemeId } from '@busi/types';
 
 // ============================================
 // Design Token System
@@ -403,15 +403,27 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-// Map shop to theme definition
-function getThemeTokens(shop: Shop): ThemeTokens {
-  // Prefer themeId, fallback to template for backwards compatibility
-  const themeId = shop.themeId || shop.template || 'vivid-accent';
-  return themeDefinitions[themeId] || themeDefinitions['vivid-accent'];
+// Resolve which theme id to use and return its tokens
+function getThemeTokens(shop: Shop): { id: ShopThemeId; tokens: ThemeTokens } {
+  // Explicit fallback mapping so older template values still give distinct looks
+  const templateFallbacks: Record<Shop['template'], ShopThemeId> = {
+    minimal: 'monochrome-editorial',
+    boutique: 'soft-pastel',
+    kids: 'vivid-accent',
+    street: 'high-contrast-dark',
+  };
+
+  const explicitThemeId = shop.themeId as ShopThemeId | undefined;
+  const selectedThemeId: ShopThemeId =
+    explicitThemeId && themeDefinitions[explicitThemeId]
+      ? explicitThemeId
+      : templateFallbacks[shop.template] || 'vivid-accent';
+
+  return { id: selectedThemeId, tokens: themeDefinitions[selectedThemeId] };
 }
 
 export function ThemeProvider({ shop, children }: ThemeProviderProps) {
-  const tokens = getThemeTokens(shop);
+  const { id: themeId, tokens } = getThemeTokens(shop);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -457,6 +469,7 @@ export function ThemeProvider({ shop, children }: ThemeProviderProps) {
     root.style.setProperty('--border-width', tokens.effects.borderWidth);
 
     // Apply data attributes for conditional styling
+    root.setAttribute('data-theme', themeId);
     root.setAttribute('data-button-style', tokens.buttonStyle);
     root.setAttribute('data-nav-style', tokens.navStyle);
     root.setAttribute('data-hero-style', tokens.heroStyle);
@@ -465,6 +478,7 @@ export function ThemeProvider({ shop, children }: ThemeProviderProps) {
     root.setAttribute('data-shadow-depth', tokens.shadowDepth);
 
     return () => {
+      root.removeAttribute('data-theme');
       root.removeAttribute('data-button-style');
       root.removeAttribute('data-nav-style');
       root.removeAttribute('data-hero-style');

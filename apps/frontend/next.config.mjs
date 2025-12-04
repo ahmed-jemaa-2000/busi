@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Allow dev access from subdomain hosts used in the multi-tenant setup
+  allowedDevOrigins: [
+    'http://localhost:3000',
+    'http://brandini.test',
+    'http://dashboard.brandini.test',
+    'http://shoppy.brandini.test',
+  ],
   images: {
     remotePatterns: [
       {
