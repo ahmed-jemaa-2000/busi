@@ -309,18 +309,32 @@ export async function getCategoriesByShop(shopId: number, token?: string): Promi
   }
 }
 
+function slugify(input: string): string {
+  const base = input
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\_]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return base || `category-${Date.now()}`;
+}
+
 export async function createCategory(
   data: { name: string; sortOrder: number; shop: number },
   token: string
 ): Promise<Category> {
-  const response = await fetchAPI<StrapiSingleResponse<Category>>(
-    '/categories',
-    {
-      method: 'POST',
-      token,
-      body: JSON.stringify({ data }),
-    }
-  );
+  const payload = {
+    ...data,
+    slug: slugify(data.name),
+  };
+
+  const response = await fetchAPI<StrapiSingleResponse<Category>>('/categories', {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ data: payload }),
+  });
 
   return transformStrapiData<Category>(response.data);
 }

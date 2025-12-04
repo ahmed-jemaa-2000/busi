@@ -26,9 +26,16 @@ export default function ProductForm({
   const [description, setDescription] = useState(product?.description || '');
   const [price, setPrice] = useState(product?.price?.toString() || '');
   const [oldPrice, setOldPrice] = useState(product?.oldPrice?.toString() || '');
-  const [categoryId, setCategoryId] = useState<string>(
-    typeof product?.category === 'object' ? product.category.id.toString() : product?.category?.toString() || ''
-  );
+  const [categoryId, setCategoryId] = useState<string>(() => {
+    if (!product?.category) return '';
+    if (typeof product.category === 'object' && product.category.id !== undefined) {
+      return product.category.id.toString();
+    }
+    if (typeof product.category === 'number' || typeof product.category === 'string') {
+      return product.category.toString();
+    }
+    return '';
+  });
   const [isFeatured, setIsFeatured] = useState(product?.isFeatured || false);
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
   const [stock, setStock] = useState(product?.stock?.toString() || '');
