@@ -7,9 +7,10 @@ import { Loader2, Printer, Truck } from 'lucide-react';
 
 interface DeliveryManagerProps {
     initialOrders: Order[];
+    shopName?: string;
 }
 
-export default function DeliveryManager({ initialOrders }: DeliveryManagerProps) {
+export default function DeliveryManager({ initialOrders, shopName }: DeliveryManagerProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders);
     const [selectedOrderIds, setSelectedOrderIds] = useState<Set<number>>(new Set());
     const [isPrinting, setIsPrinting] = useState(false);
@@ -85,7 +86,7 @@ export default function DeliveryManager({ initialOrders }: DeliveryManagerProps)
               <p>Commandes: ${selectedOrders.length}</p>
             </div>
             <div style="text-align: right;">
-              <h2>Brandini Shop</h2>
+              <h2>${shopName || selectedOrders[0]?.shop?.name || 'Boutique'}</h2>
             </div>
           </div>
 

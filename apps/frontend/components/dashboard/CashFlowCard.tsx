@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Order } from '@busi/types';
 import { CheckCircle2, Coins, Truck, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
@@ -13,22 +13,31 @@ interface CashFlowCardProps {
 export default function CashFlowCard({ orders }: CashFlowCardProps) {
     const router = useRouter();
     const [loadingId, setLoadingId] = useState<number | null>(null);
+    const [localOrders, setLocalOrders] = useState<Order[]>(orders);
+
+    useEffect(() => {
+        setLocalOrders(orders);
+    }, [orders]);
 
     const calculateTotal = (status: string | string[]) => {
         const statuses = Array.isArray(status) ? status : [status];
-        return orders
+        return localOrders
             .filter(o => statuses.includes(o.status))
             .reduce((sum, o) => sum + (o.items?.reduce((s, i) => s + i.totalPrice, 0) || 0), 0);
     };
 
-    const enRoute = calculateTotal('shipped');
+    // Workflow buckets
+    const enRoute = calculateTotal(['confirmed', 'shipped']);
     const toCollect = calculateTotal('delivered');
     const collected = calculateTotal('completed');
 
-    const deliveredOrders = orders.filter(o => o.status === 'delivered');
+    const deliveredOrders = localOrders.filter(o => o.status === 'delivered');
 
     const handleMarkAsPaid = async (orderId: number) => {
         setLoadingId(orderId);
+        const previous = [...localOrders];
+        // Optimistic update
+        setLocalOrders((current) => current.map(o => o.id === orderId ? { ...o, status: 'completed' } : o));
         try {
             const res = await fetch(`/api/dashboard/orders/${orderId}`, {
                 method: 'PATCH',
@@ -42,6 +51,7 @@ export default function CashFlowCard({ orders }: CashFlowCardProps) {
             router.refresh();
         } catch (error) {
             console.error(error);
+            setLocalOrders(previous);
             toast.error('Failed to update status');
         } finally {
             setLoadingId(null);
@@ -86,9 +96,13 @@ export default function CashFlowCard({ orders }: CashFlowCardProps) {
                 </div>
             </div>
 
-            {deliveredOrders.length > 0 && (
-                <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Pending Collections</h3>
+            <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Pending Collections</h3>
+                {deliveredOrders.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+                        No delivered COD orders waiting for collection.
+                    </div>
+                ) : (
                     <div className="space-y-3">
                         {deliveredOrders.map(order => (
                             <div key={order.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-green-200 transition-colors">
@@ -108,8 +122,8 @@ export default function CashFlowCard({ orders }: CashFlowCardProps) {
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

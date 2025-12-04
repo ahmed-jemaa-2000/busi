@@ -21,6 +21,7 @@ interface PresetGalleryProps {
 }
 
 export default function PresetGallery({ onApplyPreset, currentPreset }: PresetGalleryProps) {
+  const presetCount = THEME_PRESETS.length;
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
     style: 'all',
@@ -29,6 +30,20 @@ export default function PresetGallery({ onApplyPreset, currentPreset }: PresetGa
   });
   const [previewPreset, setPreviewPreset] = useState<ThemePreset | null>(null);
   const [sortBy, setSortBy] = useState<'popular' | 'name'>('popular');
+
+  const lineupSummary = useMemo(
+    () =>
+      THEME_PRESETS.map((preset) => ({
+        id: preset.id,
+        name: preset.name,
+        style: preset.style,
+        category: preset.category,
+        primaryColor: preset.values.primaryColor,
+        secondaryColor: preset.values.secondaryColor,
+        bestFor: preset.bestFor.slice(0, 2).join(' · '),
+      })),
+    []
+  );
 
   // Filter and search presets
   const filteredPresets = useMemo(() => {
@@ -102,9 +117,35 @@ export default function PresetGallery({ onApplyPreset, currentPreset }: PresetGa
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Choose Your Store's Personality</h2>
-        <p className="mt-2 text-gray-600">
-          6 carefully curated themes, each with a unique visual identity. Choose one that matches your brand, then customize every detail to make it yours.
+        <p className="mt-2 text-gray-700">
+          {presetCount} opinionated themes built for different storefront goals. See what each one is best at, then apply and refine.
         </p>
+      </div>
+
+      {/* Lineup purpose strip */}
+      <div className="grid gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-4 shadow-sm md:grid-cols-3">
+        {lineupSummary.map((preset) => (
+          <div
+            key={preset.id}
+            className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-3 shadow-sm ring-1 ring-blue-100"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center gap-1 rounded-lg border border-gray-200 shadow-inner ring-1 ring-gray-100">
+                <span className="h-4 w-4 rounded-full" style={{ background: preset.primaryColor }} />
+                <span className="h-4 w-4 rounded-full border border-white/70" style={{ background: preset.secondaryColor }} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{preset.name}</p>
+                <p className="text-xs text-gray-600">
+                  Best for: {preset.bestFor || preset.category}
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-800">
+              {preset.style}
+            </span>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}

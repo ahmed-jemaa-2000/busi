@@ -32,12 +32,21 @@ const STATUS_CONFIG = {
   cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
 };
 
+const STATUS_FLOW: Order['status'][] = ['pending', 'confirmed', 'shipped', 'delivered', 'completed'];
+
+const getNextStatus = (status: Order['status']): Order['status'] | null => {
+  const idx = STATUS_FLOW.indexOf(status);
+  if (idx === -1 || idx === STATUS_FLOW.length - 1) return null;
+  return STATUS_FLOW[idx + 1];
+};
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<Order['status'] | 'all'>('all');
 
   useEffect(() => {
     fetchOrders();
@@ -59,32 +68,54 @@ export default function OrdersPage() {
   };
 
   const handleStatusChange = async (orderId: number, newStatus: Order['status']) => {
+    const previousOrders = orders;
+    const previousSelected = selectedOrder;
+
+    // Optimistic UI update so the select reflects instantly
+    setOrders((current) =>
+      current.map((order) =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+    if (selectedOrder?.id === orderId) {
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
+    }
+
     try {
       const response = await fetch(`/api/dashboard/orders/${orderId}`, {
-        method: 'PUT', // Using PUT as per original implementation, though PATCH is often preferred
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (response.ok) {
-        fetchOrders();
-        if (selectedOrder?.id === orderId) {
-          const updated = await response.json();
-          setSelectedOrder(updated);
-        }
         toast.success('Order status updated');
+        fetchOrders();
+      } else {
+        setOrders(previousOrders);
+        setSelectedOrder(previousSelected);
+        toast.error('Failed to update status');
       }
     } catch (error) {
       console.error('Error updating order:', error);
+      setOrders(previousOrders);
+      setSelectedOrder(previousSelected);
       toast.error('Failed to update status');
     }
   };
 
-  const filteredOrders = orders.filter(order =>
-    order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.id.toString().includes(searchTerm) ||
-    order.customerPhone.includes(searchTerm)
-  );
+  const filteredOrders = orders
+    .filter(order =>
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.id.toString().includes(searchTerm) ||
+      order.customerPhone.includes(searchTerm)
+    )
+    .filter(order => statusFilter === 'all' ? true : order.status === statusFilter);
+
+  const statusCounts = STATUS_FLOW.reduce<Record<string, number>>((acc, status) => {
+    acc[status] = orders.filter((o) => o.status === status).length;
+    return acc;
+  }, {});
 
   const calculateTotal = (order: Order) => {
     return order.items?.reduce((sum, item) => sum + item.totalPrice, 0) || 0;
@@ -127,21 +158,47 @@ export default function OrdersPage() {
         </div>
 
         {/* Filters & Search */}
-        <div className="glass-panel p-4 rounded-xl flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search by name, phone, or ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-            />
+        <div className="glass-panel p-4 rounded-xl space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search by name, phone, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+                <Filter className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-              <Filter className="w-5 h-5" />
-            </button>
+
+          <div className="flex flex-wrap gap-2">
+            {(['all', ...STATUS_FLOW] as const).map((statusKey) => {
+              const isAll = statusKey === 'all';
+              const isActive = statusFilter === statusKey;
+              const label = isAll ? 'All' : STATUS_CONFIG[statusKey as keyof typeof STATUS_CONFIG].label;
+              const count = isAll ? orders.length : statusCounts[statusKey as keyof typeof statusCounts] || 0;
+
+              return (
+                <button
+                  key={statusKey}
+                  onClick={() => setStatusFilter(statusKey as any)}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                    isActive ? 'border-primary bg-primary/10 text-primary' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>{label}</span>
+                  <span className={`text-xs rounded-full px-2 py-0.5 ${isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -173,11 +230,11 @@ export default function OrdersPage() {
                     const StatusIcon = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG]?.icon || Clock;
                     const statusStyle = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
 
-                    return (
-                      <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <span className="font-mono text-sm font-medium text-gray-900">#{order.id}</span>
-                        </td>
+                  return (
+                    <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <span className="font-mono text-sm font-medium text-gray-900">#{order.id}</span>
+                      </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
@@ -203,18 +260,29 @@ export default function OrdersPage() {
                         <td className="px-6 py-4 text-sm text-gray-500">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </button>
+                        {getNextStatus(order.status) && (
                           <button
-                            onClick={() => setSelectedOrder(order)}
-                            className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                            onClick={() => {
+                              const next = getNextStatus(order.status);
+                              if (next) handleStatusChange(order.id, next);
+                            }}
+                            className="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
                           >
-                            <Eye className="w-5 h-5" />
+                            Advance to {STATUS_CONFIG[getNextStatus(order.status) as keyof typeof STATUS_CONFIG]?.label || 'Next'}
                           </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
               </table>
             </div>
           )}
@@ -288,6 +356,38 @@ export default function OrdersPage() {
                             </option>
                           ))}
                         </select>
+                        {getNextStatus(selectedOrder.status) && (
+                          <button
+                            onClick={() => {
+                              const next = getNextStatus(selectedOrder.status);
+                              if (next) handleStatusChange(selectedOrder.id, next);
+                            }}
+                            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90"
+                          >
+                            Move to {STATUS_CONFIG[getNextStatus(selectedOrder.status) as keyof typeof STATUS_CONFIG]?.label}
+                          </button>
+                        )}
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                          {STATUS_FLOW.map((status) => {
+                            const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG];
+                            const isActive = selectedOrder.status === status;
+                            const isDone = STATUS_FLOW.indexOf(status) < STATUS_FLOW.indexOf(selectedOrder.status);
+                            return (
+                              <span
+                                key={status}
+                                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${
+                                  isActive
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : isDone
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                    : 'border-gray-200 bg-gray-100 text-gray-600'
+                                }`}
+                              >
+                                {config.label}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <CreditCard className="w-4 h-4" />

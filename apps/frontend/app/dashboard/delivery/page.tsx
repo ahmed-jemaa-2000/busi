@@ -1,5 +1,5 @@
 import { getAuthToken, getUserShopId } from '@/lib/auth-server';
-import { getOrdersByShop } from '@/lib/strapi';
+import { getOrdersByShop, getShopById } from '@/lib/strapi';
 import DeliveryManager from '@/components/dashboard/delivery/DeliveryManager';
 
 export default async function DeliveryPage() {
@@ -10,7 +10,10 @@ export default async function DeliveryPage() {
     const shopId = await getUserShopId(token);
     if (!shopId) return <div>No shop found</div>;
 
-    const orders = await getOrdersByShop(shopId, token);
+    const [orders, shop] = await Promise.all([
+        getOrdersByShop(shopId, token),
+        getShopById(shopId, token),
+    ]);
 
     return (
         <div className="space-y-6">
@@ -19,7 +22,7 @@ export default async function DeliveryPage() {
                 <p className="text-gray-600 mt-1">Generate manifests (bordereaux) for your delivery partners.</p>
             </div>
 
-            <DeliveryManager initialOrders={orders} />
+            <DeliveryManager initialOrders={orders} shopName={shop?.name} />
         </div>
     );
 }

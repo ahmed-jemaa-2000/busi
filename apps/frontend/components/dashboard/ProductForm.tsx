@@ -93,10 +93,34 @@ export default function ProductForm({
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Reorder new images to set a main image
+  const handleSetNewMain = (index: number) => {
+    setNewImages((prev) => {
+      const copy = [...prev];
+      const [selected] = copy.splice(index, 1);
+      return [selected, ...copy];
+    });
+    setImagePreviews((prev) => {
+      const copy = [...prev];
+      const [selected] = copy.splice(index, 1);
+      return [selected, ...copy];
+    });
+  };
+
   // Mark existing image for deletion
   const handleRemoveExistingImage = (imageId: number) => {
     setImagesToDelete(prev => [...prev, imageId]);
     setExistingImages(prev => prev.filter(img => img.id !== imageId));
+  };
+
+  // Reorder existing images to set a main image
+  const handleSetExistingMain = (imageId: number) => {
+    setExistingImages((prev) => {
+      const mainImage = prev.find((img) => img.id === imageId);
+      if (!mainImage) return prev;
+      const rest = prev.filter((img) => img.id !== imageId);
+      return [mainImage, ...rest];
+    });
   };
 
   // Validation
@@ -218,15 +242,25 @@ export default function ProductForm({
                 fill
                 className="object-cover"
               />
-              <button
-                type="button"
-                onClick={() => handleRemoveExistingImage(image.id)}
-                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
+                <button
+                  type="button"
+                  onClick={() => handleSetExistingMain(image.id)}
+                  className="bg-white text-gray-800 px-2 py-1 rounded-full text-[11px] font-semibold shadow border border-gray-200 hover:bg-gray-50"
+                >
+                  Set as main
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveExistingImage(image.id)}
+                  className="bg-red-500 text-white p-2 rounded-full shadow hover:bg-red-600"
+                  aria-label="Remove image"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
               {index === 0 && (
                 <div className="absolute bottom-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded">
                   Main
@@ -244,17 +278,27 @@ export default function ProductForm({
                 fill
                 className="object-cover"
               />
-              <button
-                type="button"
-                onClick={() => handleRemoveNewImage(index)}
-                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <div className="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                New
+              <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
+                <button
+                  type="button"
+                  onClick={() => handleSetNewMain(index)}
+                  className="bg-white text-gray-800 px-2 py-1 rounded-full text-[11px] font-semibold shadow border border-gray-200 hover:bg-gray-50"
+                >
+                  Set as main
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveNewImage(index)}
+                  className="bg-red-500 text-white p-2 rounded-full shadow hover:bg-red-600"
+                  aria-label="Remove image"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className={`absolute bottom-2 left-2 text-white text-xs px-2 py-1 rounded ${index === 0 ? 'bg-primary' : 'bg-green-500'}`}>
+                {index === 0 ? 'Main' : 'New'}
               </div>
             </div>
           ))}

@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         color: item.color,
       })),
       shop: shopId,
-      status: 'confirmed', // Manual orders are usually confirmed immediately
+      status: 'pending', // Start in pending; workflow will move to confirmed -> shipped -> delivered -> completed
       paymentMethod: 'cod', // Default for manual entry
       notes: notes || 'Manual entry from dashboard',
       publishedAt: new Date().toISOString(),
