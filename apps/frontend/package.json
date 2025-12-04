@@ -10,24 +10,29 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@monaco-editor/react": "^4.7.0",
+    "framer-motion": "^12.23.25",
+    "isomorphic-dompurify": "^2.16.0",
     "next": "^14.2.0",
+    "qs": "^6.11.2",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "qs": "^6.11.2",
-    "isomorphic-dompurify": "^2.16.0",
-    "sonner": "^1.4.0"
+    "react-hook-form": "^7.68.0",
+    "sonner": "^1.4.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^20.11.0",
+    "@types/qs": "^6.9.11",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "@types/qs": "^6.9.11",
-    "@types/dompurify": "^3.0.5",
-    "typescript": "^5.3.3",
-    "tailwindcss": "^3.4.1",
     "autoprefixer": "^10.4.17",
-    "postcss": "^8.4.33",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.2.0"
+    "eslint-config-next": "^14.2.0",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
   }
 }
