@@ -1,15 +1,65 @@
 import { NextResponse } from 'next/server';
 import { getStrapiURL } from '@/lib/strapi';
 
+const PHONE_REGEX = /^[+]?[0-9]{8,15}$/;
+
+const normalizePhone = (phone: string) => {
+    const trimmed = (phone || '').trim();
+    const digits = trimmed.replace(/\D/g, '');
+    return trimmed.startsWith('+') ? `+${digits}` : digits;
+};
+
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { customerName, customerPhone, customerAddress, items, shopId } = body;
+        const customerName = (body.customerName || '').toString().trim();
+        const customerPhone = normalizePhone((body.customerPhone || '').toString());
+        const customerAddress = (body.customerAddress || '').toString().trim();
+        const shopId = Number(body.shopId);
+        const rawItems = Array.isArray(body.items) ? body.items : [];
 
-        // Basic validation
-        if (!customerName || !customerPhone || !items || items.length === 0 || !shopId) {
+        // Basic validation aligned with Strapi schema
+        if (!customerName || customerName.length < 2) {
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                { error: 'Customer name is required' },
+                { status: 400 }
+            );
+        }
+
+        if (customerName.length > 100) {
+            return NextResponse.json(
+                { error: 'Customer name must be 100 characters or less' },
+                { status: 400 }
+            );
+        }
+
+        if (!PHONE_REGEX.test(customerPhone)) {
+            return NextResponse.json(
+                { error: 'A valid phone number is required' },
+                { status: 400 }
+            );
+        }
+
+        if (!shopId || Number.isNaN(shopId) || shopId < 1) {
+            return NextResponse.json(
+                { error: 'Shop id is required' },
+                { status: 400 }
+            );
+        }
+
+        const items = rawItems
+            .filter((item: any) => item?.productId && item?.quantity > 0 && item?.price >= 0)
+            .map((item: any) => ({
+                productId: Number(item.productId),
+                quantity: Number(item.quantity) || 1,
+                price: Number(item.price) || 0,
+                size: item.size,
+                color: item.color,
+            }));
+
+        if (items.length === 0) {
+            return NextResponse.json(
+                { error: 'At least one valid item is required' },
                 { status: 400 }
             );
         }
@@ -22,7 +72,7 @@ export async function POST(request: Request) {
             data: {
                 customerName,
                 customerPhone,
-                customerAddress,
+                customerAddress: customerAddress || undefined,
                 items: items.map((item: any) => ({
                     product: item.productId,
                     quantity: item.quantity,
@@ -35,7 +85,6 @@ export async function POST(request: Request) {
                 status: 'pending',
                 paymentMethod: 'cod', // Default to Cash on Delivery for WhatsApp orders
                 notes: 'Order via WhatsApp',
-                publishedAt: new Date().toISOString(), // Publish immediately
             },
         };
 

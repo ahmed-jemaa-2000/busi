@@ -94,42 +94,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 )}
               </div>
 
-              {product.sizes && product.sizes.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-[0.2em]">Sizes</h3>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {product.sizes.map((size) => (
-                      <div
-                        key={size}
-                        className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800 shadow-sm hover:border-primary hover:text-primary"
-                      >
-                        {size}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {product.colors && product.colors.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-[0.2em]">Colors</h3>
-                  <div className="mt-3 flex flex-wrap gap-3">
-                    {product.colors.map((color) => (
-                      <div
-                        key={color}
-                        className="group relative flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800 shadow-sm hover:border-primary"
-                      >
-                        <span
-                          className="h-5 w-5 rounded-full border border-white shadow-sm ring-1 ring-gray-200"
-                          style={{ backgroundColor: color.toLowerCase() }}
-                        />
-                        <span>{color}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div className="mt-6 flex flex-col gap-3">
                 <WhatsAppButton product={product} shop={shop} />
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
