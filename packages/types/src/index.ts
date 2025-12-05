@@ -65,7 +65,7 @@ export interface Category {
 }
 
 // Order types
-export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
 export type PaymentMethod = 'cod' | 'bank_transfer' | 'other';
 
 export interface OrderItem {
