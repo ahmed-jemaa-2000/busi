@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { THEME_PRESETS, searchPresets, type ThemePreset } from '@/lib/constants/presets';
-import { staggerContainer, staggerItem } from '@/lib/animations';
-import PresetCard from './PresetCard';
-import PresetFilter, { type FilterState } from './PresetFilter';
 import PresetPreviewModal from './PresetPreviewModal';
+import { Search, Sparkles, Check, Eye, Palette, Star, Gem, Zap, X } from 'lucide-react';
 
 interface PresetGalleryProps {
   onApplyPreset: (preset: ThemePreset['values'] & { name: string; themeId: string }) => void;
@@ -20,292 +18,351 @@ interface PresetGalleryProps {
   };
 }
 
+type FilterStyle = 'all' | 'minimal' | 'bold' | 'elegant' | 'playful';
+
+const STYLE_OPTIONS: { id: FilterStyle; label: string; description: string }[] = [
+  { id: 'all', label: 'All Styles', description: 'Show all themes' },
+  { id: 'minimal', label: 'Minimal', description: 'Clean & simple' },
+  { id: 'bold', label: 'Bold', description: 'Strong & striking' },
+  { id: 'elegant', label: 'Elegant', description: 'Refined & sophisticated' },
+];
+
 export default function PresetGallery({ onApplyPreset, currentPreset }: PresetGalleryProps) {
-  const presetCount = THEME_PRESETS.length;
-  const [filters, setFilters] = useState<FilterState>({
-    category: 'all',
-    style: 'all',
-    colorScheme: 'all',
-    search: '',
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [styleFilter, setStyleFilter] = useState<FilterStyle>('all');
   const [previewPreset, setPreviewPreset] = useState<ThemePreset | null>(null);
-  const [sortBy, setSortBy] = useState<'popular' | 'name'>('popular');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const lineupSummary = useMemo(
-    () =>
-      THEME_PRESETS.map((preset) => ({
-        id: preset.id,
-        name: preset.name,
-        style: preset.style,
-        category: preset.category,
-        primaryColor: preset.values.primaryColor,
-        secondaryColor: preset.values.secondaryColor,
-        bestFor: preset.bestFor.slice(0, 2).join(' · '),
-      })),
-    []
-  );
-
-  // Filter and search presets
   const filteredPresets = useMemo(() => {
     let results = [...THEME_PRESETS];
 
-    // Apply search
-    if (filters.search) {
-      results = searchPresets(filters.search);
+    if (searchQuery) {
+      results = searchPresets(searchQuery);
     }
 
-    // Apply category filter
-    if (filters.category !== 'all') {
-      results = results.filter((preset) => preset.category === filters.category);
+    if (styleFilter !== 'all') {
+      results = results.filter((preset) => preset.style === styleFilter);
     }
 
-    // Apply style filter
-    if (filters.style !== 'all') {
-      results = results.filter((preset) => preset.style === filters.style);
-    }
-
-    // Apply color scheme filter
-    if (filters.colorScheme !== 'all') {
-      results = results.filter((preset) => preset.colorScheme === filters.colorScheme);
-    }
-
-    // Sort results
-    if (sortBy === 'popular') {
-      results.sort((a, b) => {
-        if (a.badge === 'popular') return -1;
-        if (b.badge === 'popular') return 1;
-        if (a.badge === 'premium') return -1;
-        if (b.badge === 'premium') return 1;
-        return 0;
-      });
-    } else {
-      results.sort((a, b) => a.name.localeCompare(b.name));
-    }
+    // Sort: popular first, then premium, then new
+    results.sort((a, b) => {
+      const order = { popular: 0, premium: 1, new: 2 };
+      const aOrder = a.badge ? order[a.badge as keyof typeof order] ?? 3 : 3;
+      const bOrder = b.badge ? order[b.badge as keyof typeof order] ?? 3 : 3;
+      return aOrder - bOrder;
+    });
 
     return results;
-  }, [filters, sortBy]);
+  }, [searchQuery, styleFilter]);
 
-  // Check if preset is currently selected
   const isPresetSelected = (preset: ThemePreset) => {
     if (!currentPreset) return false;
-    // Prefer themeId matching, fallback to old values matching
     if (currentPreset.themeId) {
       return preset.themeId === currentPreset.themeId;
     }
     return (
       preset.values.template === currentPreset.template &&
-      preset.values.primaryColor === currentPreset.primaryColor &&
-      preset.values.secondaryColor === currentPreset.secondaryColor &&
-      preset.values.font === currentPreset.font
+      preset.values.primaryColor === currentPreset.primaryColor
     );
   };
 
   const handleApplyPreset = (preset: ThemePreset) => {
     onApplyPreset({ ...preset.values, name: preset.name, themeId: preset.themeId });
-    toast.success(`${preset.name} theme applied successfully!`, {
-      description: 'Your store will now use the new design system. Visit your store to see the changes!',
-      duration: 5000,
+    toast.success(`${preset.name} theme applied!`, {
+      description: 'Click "Save changes" to publish to your live store.',
+      duration: 4000,
     });
   };
 
-  const handlePreview = (preset: ThemePreset) => {
-    setPreviewPreset(preset);
+  const getBadgeConfig = (badge?: string) => {
+    switch (badge) {
+      case 'popular':
+        return { icon: Star, color: 'bg-gradient-to-r from-amber-400 to-orange-500', text: 'Popular' };
+      case 'premium':
+        return { icon: Gem, color: 'bg-gradient-to-r from-purple-500 to-indigo-600', text: 'Premium' };
+      case 'new':
+        return { icon: Zap, color: 'bg-gradient-to-r from-green-400 to-emerald-500', text: 'New' };
+      default:
+        return null;
+    }
+  };
+
+  const getCategoryEmoji = (category: string) => {
+    switch (category) {
+      case 'fashion': return '👗';
+      case 'beauty': return '💄';
+      case 'electronics': return '📱';
+      case 'food': return '🍔';
+      case 'handmade': return '✋';
+      default: return '🏪';
+    }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Choose Your Store's Personality</h2>
-        <p className="mt-2 text-gray-700">
-          {presetCount} opinionated themes built for different storefront goals. See what each one is best at, then apply and refine.
-        </p>
-      </div>
-
-      {/* Lineup purpose strip */}
-      <div className="grid gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-4 shadow-sm md:grid-cols-3">
-        {lineupSummary.map((preset) => (
-          <div
-            key={preset.id}
-            className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-3 shadow-sm ring-1 ring-blue-100"
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center gap-1 rounded-lg border border-gray-200 shadow-inner ring-1 ring-gray-100">
-                <span className="h-4 w-4 rounded-full" style={{ background: preset.primaryColor }} />
-                <span className="h-4 w-4 rounded-full border border-white/70" style={{ background: preset.secondaryColor }} />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{preset.name}</p>
-                <p className="text-xs text-gray-600">
-                  Best for: {preset.bestFor || preset.category}
-                </p>
-              </div>
-            </div>
-            <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-800">
-              {preset.style}
-            </span>
+    <div className="space-y-8">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-8 text-white">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-pink-500/30 rounded-full blur-3xl" />
+        </div>
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5" />
+            <span className="text-sm font-semibold text-purple-200">{THEME_PRESETS.length} Premium Themes</span>
           </div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <PresetFilter onFilterChange={setFilters} />
-
-      {/* Results Header */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">
-          <span className="font-semibold text-gray-900">{filteredPresets.length}</span>{' '}
-          {filteredPresets.length === 1 ? 'theme' : 'themes'} available
-        </p>
-
-        {/* Sort */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'popular' | 'name')}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="popular">Most Popular</option>
-            <option value="name">Name (A-Z)</option>
-          </select>
+          <h2 className="text-3xl font-bold mb-2">Choose Your Perfect Theme</h2>
+          <p className="text-purple-100 max-w-xl">
+            Professional themes designed by experts. Pick one, customize it, and make it yours.
+          </p>
         </div>
       </div>
 
-      {/* Presets Grid */}
-      {filteredPresets.length > 0 ? (
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 gap-6 md:grid-cols-2"
-        >
-          {filteredPresets.map((preset) => (
-            <motion.div key={preset.id} variants={staggerItem}>
-              <PresetCard
-                preset={preset}
-                isSelected={isPresetSelected(preset)}
-                onPreview={() => handlePreview(preset)}
-                onApply={() => handleApplyPreset(preset)}
-              />
-            </motion.div>
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search themes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Style Filter */}
+        <div className="flex gap-2 flex-wrap">
+          {STYLE_OPTIONS.map((style) => (
+            <button
+              key={style.id}
+              onClick={() => setStyleFilter(style.id)}
+              className={`
+                px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                ${styleFilter === style.id
+                  ? 'bg-gray-900 text-white shadow-lg'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }
+              `}
+            >
+              {style.label}
+            </button>
           ))}
-        </motion.div>
+        </div>
+      </div>
+
+      {/* Results */}
+      {filteredPresets.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filteredPresets.map((preset, index) => {
+              const isSelected = isPresetSelected(preset);
+              const isHovered = hoveredId === preset.id;
+              const badgeConfig = getBadgeConfig(preset.badge);
+
+              return (
+                <motion.div
+                  key={preset.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  onMouseEnter={() => setHoveredId(preset.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  className={`
+                    group relative bg-white rounded-2xl overflow-hidden transition-all duration-300
+                    ${isSelected
+                      ? 'ring-2 ring-primary shadow-xl shadow-primary/10'
+                      : 'border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1'
+                    }
+                  `}
+                >
+                  {/* Preview Area */}
+                  <div className="relative h-52 overflow-hidden">
+                    {/* Gradient Background */}
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: `linear-gradient(135deg, ${preset.values.primaryColor} 0%, ${preset.values.secondaryColor} 100%)`,
+                      }}
+                    />
+
+                    {/* Mini Store Preview */}
+                    <div className="absolute inset-4 bg-white rounded-xl shadow-2xl overflow-hidden">
+                      {/* Browser Chrome */}
+                      <div className="h-7 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                        <div className="flex-1 mx-3">
+                          <div className="h-4 bg-gray-200 rounded-md max-w-[120px] mx-auto" />
+                        </div>
+                      </div>
+
+                      {/* Scrollable Content Preview */}
+                      <div className="p-2 space-y-2">
+                        {/* Mini Hero */}
+                        <div
+                          className="h-12 rounded-lg flex items-center justify-center relative overflow-hidden"
+                          style={{ backgroundColor: preset.values.primaryColor }}
+                        >
+                          <div className="absolute inset-0 bg-black/10" />
+                          <span className="text-white text-[10px] font-medium opacity-80">HERO</span>
+                        </div>
+
+                        {/* Mini Products Grid */}
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="space-y-1">
+                              <div className="aspect-square bg-gray-100 rounded-md" />
+                              <div className="h-1.5 bg-gray-200 rounded-full w-3/4" />
+                              <div className="h-1.5 rounded-full w-1/2" style={{ backgroundColor: preset.values.primaryColor + '40' }} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Badge */}
+                    {badgeConfig && (
+                      <div className={`absolute top-2 left-2 ${badgeConfig.color} text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg`}>
+                        <badgeConfig.icon className="w-3.5 h-3.5" />
+                        {badgeConfig.text}
+                      </div>
+                    )}
+
+                    {/* Selected Check */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg">
+                        <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                      </div>
+                    )}
+
+                    {/* Hover Overlay */}
+                    <motion.div
+                      initial={false}
+                      animate={{ opacity: isHovered ? 1 : 0 }}
+                      className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center pb-6 gap-3"
+                    >
+                      <button
+                        onClick={() => setPreviewPreset(preset)}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-white/95 backdrop-blur-sm rounded-xl text-gray-900 text-sm font-semibold shadow-lg hover:bg-white hover:scale-105 transition-all"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Preview
+                      </button>
+                      <button
+                        onClick={() => handleApplyPreset(preset)}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-primary rounded-xl text-white text-sm font-semibold shadow-lg hover:bg-primary/90 hover:scale-105 transition-all"
+                      >
+                        <Check className="w-4 h-4" />
+                        Apply Theme
+                      </button>
+                    </motion.div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">{preset.name}</h3>
+                        <p className="text-sm text-gray-500 flex items-center gap-1.5 mt-0.5">
+                          <span>{getCategoryEmoji(preset.category)}</span>
+                          <span className="capitalize">{preset.category}</span>
+                          <span className="text-gray-300">•</span>
+                          <span className="capitalize">{preset.style}</span>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <div
+                          className="w-6 h-6 rounded-lg border-2 border-white shadow-md"
+                          style={{ backgroundColor: preset.values.primaryColor }}
+                        />
+                        <div
+                          className="w-6 h-6 rounded-lg border-2 border-white shadow-md -ml-2"
+                          style={{ backgroundColor: preset.values.secondaryColor }}
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                      {preset.description}
+                    </p>
+
+                    {/* Key Changes */}
+                    {preset.changes && preset.changes.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {preset.changes.slice(0, 3).map((change, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 rounded-lg text-xs text-gray-600 border border-gray-100"
+                          >
+                            <Palette className="w-3 h-3 text-gray-400" />
+                            {change}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
       ) : (
         /* Empty State */
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
-          <svg
-            className="h-16 w-16 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">No themes found</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Try adjusting your filters or search terms
-          </p>
+        <div className="text-center py-16 bg-gradient-to-b from-gray-50 to-white rounded-2xl border border-gray-100">
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Search className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">No themes found</h3>
+          <p className="text-gray-500 mb-6">Try a different search term or filter</p>
           <button
-            onClick={() =>
-              setFilters({
-                category: 'all',
-                style: 'all',
-                colorScheme: 'all',
-                search: '',
-              })
-            }
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+            onClick={() => {
+              setSearchQuery('');
+              setStyleFilter('all');
+            }}
+            className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
           >
-            Clear All Filters
+            Show All Themes
           </button>
         </div>
       )}
 
-      {/* Info Footer */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-        <div className="flex items-start gap-3">
-          <svg
-            className="h-5 w-5 flex-shrink-0 text-blue-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-            />
-          </svg>
-          <div className="flex-1">
-            <p className="font-semibold text-blue-900">Customize After Applying</p>
-            <p className="mt-1 text-sm text-blue-700">
-              After selecting a preset, you can fine-tune every aspect including colors, fonts, and layout in the other tabs. Don't worry - nothing is permanent!
-            </p>
+      {/* Help Section */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 border border-blue-100">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-1">Fully Customizable</h4>
+              <p className="text-sm text-gray-600">
+                Every theme is just a starting point. Adjust colors, fonts, and layout in the other tabs.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Helpful Tips */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Choosing the Right Theme</h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-100">
-              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-100">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Check className="w-5 h-5 text-green-600" />
             </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Match Your Products</p>
-              <p className="mt-1 text-sm text-gray-600">
-                Choose a theme that complements your product photography and brand style
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
-              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Preview Before Applying</p>
-              <p className="mt-1 text-sm text-gray-600">
-                Use the preview feature to see how themes look on different devices
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100">
-              <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Start Simple</p>
-              <p className="mt-1 text-sm text-gray-600">
-                Minimal themes are easier to customize and work well for most products
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100">
-              <svg className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">You Can Always Change</p>
-              <p className="mt-1 text-sm text-gray-600">
-                Themes can be switched anytime - experiment to find what works best
+            <div>
+              <h4 className="font-bold text-gray-900 mb-1">Preview Before Publishing</h4>
+              <p className="text-sm text-gray-600">
+                Your changes won't go live until you click "Save changes" at the top.
               </p>
             </div>
           </div>

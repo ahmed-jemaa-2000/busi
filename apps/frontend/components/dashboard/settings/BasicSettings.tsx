@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { Shop } from '@busi/types';
 import { getStrapiMediaUrl } from '@/lib/strapi';
 import { toast } from 'sonner';
+import { Store, Upload, Trash2, Link2, MessageCircle, Instagram, Facebook, Copy, ExternalLink, Info, Camera } from 'lucide-react';
 
 interface BasicSettingsProps {
   shop: Shop;
@@ -23,8 +24,10 @@ export default function BasicSettings({ shop, formData, setFormData }: BasicSett
   const logoPreviewUrl = formData.logo
     ? URL.createObjectURL(formData.logo)
     : shop.logo
-    ? getStrapiMediaUrl(shop.logo.url)
-    : null;
+      ? getStrapiMediaUrl(shop.logo.url)
+      : null;
+
+  const shopUrl = `https://${shop.subdomain}.${process.env.NODE_ENV === 'development' ? 'brandini.test:3000' : 'brandini.tn'}`;
 
   const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +41,7 @@ export default function BasicSettings({ shop, formData, setFormData }: BasicSett
         return;
       }
       setFormData({ ...formData, logo: file });
+      toast.success('Logo uploaded! Click Save to apply.');
     }
   };
 
@@ -48,203 +52,241 @@ export default function BasicSettings({ shop, formData, setFormData }: BasicSett
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Shop Information */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Shop Information</h3>
+  const copyUrl = () => {
+    navigator.clipboard.writeText(shopUrl);
+    toast.success('URL copied to clipboard');
+  };
 
-        <div className="space-y-4">
+  return (
+    <div className="space-y-8">
+      {/* Section Header */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+            <Store className="w-5 h-5 text-white" />
+          </div>
+          Basic Information
+        </h2>
+        <p className="text-gray-600 mt-2">
+          Configure your shop's identity and how customers can reach you.
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Left Column */}
+        <div className="space-y-6">
           {/* Shop Name */}
-          <div>
-            <label htmlFor="shop-name" className="mb-1 block text-sm font-medium text-gray-700">
-              Shop Name <span className="text-red-500">*</span>
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <label htmlFor="shop-name" className="block text-sm font-bold text-gray-900 mb-3">
+              Shop Name
             </label>
             <input
               id="shop-name"
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 font-medium transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               placeholder="My Amazing Store"
               required
             />
-            <p className="mt-1 text-sm text-gray-500">
-              This is the name that appears in your storefront header and browser title.
+            <p className="mt-2 text-sm text-gray-500">
+              Displayed in your store header and browser tab
             </p>
           </div>
 
-          {/* Subdomain (Read-only) */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Subdomain
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={shop.subdomain}
-                disabled
-                className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-gray-600"
-              />
+          {/* Store URL */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 text-white">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Link2 className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-medium text-gray-400">Your Store URL</span>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                Live
+              </span>
+            </div>
+            <p className="text-lg font-mono text-white mb-4 truncate">{shopUrl}</p>
+            <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  const url = `https://${shop.subdomain}.${process.env.NODE_ENV === 'development' ? 'brandini.test:3000' : 'brandini.tn'}`;
-                  navigator.clipboard.writeText(url);
-                  toast.success('URL copied to clipboard');
-                }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                onClick={copyUrl}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-medium transition-colors"
               >
+                <Copy className="w-4 h-4" />
                 Copy URL
               </button>
+              <button
+                type="button"
+                onClick={() => window.open(shopUrl, '_blank')}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-900 hover:bg-gray-100 rounded-xl text-sm font-semibold transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Visit Store
+              </button>
             </div>
-            <p className="mt-1 text-sm text-gray-500">
-              Your storefront URL: <strong>https://{shop.subdomain}.{process.env.NODE_ENV === 'development' ? 'brandini.test:3000' : 'brandini.tn'}</strong>
-            </p>
           </div>
-        </div>
-      </div>
 
-      {/* Logo */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Shop Logo</h3>
+          {/* Social Links */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              Social & Contact Links
+            </h3>
 
-        <div className="space-y-4">
-          <div className="flex items-start gap-6">
-            {/* Logo Preview */}
-            {logoPreviewUrl && (
-              <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-gray-200 bg-gray-50">
-                <Image
-                  src={logoPreviewUrl}
-                  alt="Shop logo"
-                  fill
-                  className="object-contain p-2"
+            {/* WhatsApp */}
+            <div>
+              <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-2">
+                WhatsApp Number
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+                  <MessageCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <input
+                  id="whatsapp"
+                  type="text"
+                  value={formData.whatsappNumber}
+                  onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+                  placeholder="+216 XX XXX XXX"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
                 />
               </div>
-            )}
+              <p className="mt-1.5 text-xs text-gray-500">
+                Used for "Order via WhatsApp" button
+              </p>
+            </div>
 
-            {/* Upload Controls */}
-            <div className="flex-1 space-y-3">
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleLogoSelect}
-                className="hidden"
-              />
+            {/* Instagram */}
+            <div>
+              <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 mb-2">
+                Instagram
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+                  <Instagram className="w-5 h-5 text-pink-500" />
+                </div>
+                <input
+                  id="instagram"
+                  type="url"
+                  value={formData.instagramUrl}
+                  onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
+                  placeholder="https://instagram.com/yourshop"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
 
-              <div className="flex gap-3">
+            {/* Facebook */}
+            <div>
+              <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 mb-2">
+                Facebook
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+                  <Facebook className="w-5 h-5 text-blue-600" />
+                </div>
+                <input
+                  id="facebook"
+                  type="url"
+                  value={formData.facebookUrl}
+                  onChange={(e) => setFormData({ ...formData, facebookUrl: e.target.value })}
+                  placeholder="https://facebook.com/yourshop"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Logo */}
+        <div>
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-full">
+            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Camera className="w-4 h-4" />
+              Shop Logo
+            </h3>
+
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleLogoSelect}
+              className="hidden"
+            />
+
+            {/* Logo Preview */}
+            <div
+              onClick={() => logoInputRef.current?.click()}
+              className={`
+                relative group cursor-pointer rounded-2xl border-2 border-dashed transition-all
+                ${logoPreviewUrl
+                  ? 'border-gray-200 bg-gray-50'
+                  : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-primary/5'
+                }
+              `}
+            >
+              {logoPreviewUrl ? (
+                <div className="relative aspect-square p-8">
+                  <Image
+                    src={logoPreviewUrl}
+                    alt="Shop logo"
+                    fill
+                    className="object-contain p-4"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <Upload className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-sm font-medium">Change Logo</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="aspect-square flex flex-col items-center justify-center p-8 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                    <Upload className="w-8 h-8 text-gray-400 group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 mb-1">Upload your logo</p>
+                  <p className="text-xs text-gray-500">PNG, JPG, or SVG up to 5MB</p>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            {logoPreviewUrl && (
+              <div className="flex gap-2 mt-4">
                 <button
                   type="button"
                   onClick={() => logoInputRef.current?.click()}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-colors"
                 >
-                  {logoPreviewUrl ? 'Change Logo' : 'Upload Logo'}
+                  <Upload className="w-4 h-4" />
+                  Replace
                 </button>
-
-                {logoPreviewUrl && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveLogo}
-                    className="rounded-lg px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-                  >
-                    Remove
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleRemoveLogo}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 rounded-xl text-sm font-medium text-red-600 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Remove
+                </button>
               </div>
+            )}
 
-              <div className="rounded-lg bg-gray-50 p-3">
-                <div className="flex items-start gap-2">
-                  <svg className="h-5 w-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div className="text-sm text-gray-600">
-                    <p className="font-medium">Recommended:</p>
-                    <ul className="mt-1 list-inside list-disc space-y-0.5">
-                      <li>Square format (e.g., 200x200px)</li>
-                      <li>PNG or SVG for best quality</li>
-                      <li>Maximum file size: 5MB</li>
-                      <li>Transparent background works best</li>
-                    </ul>
-                  </div>
+            {/* Tips */}
+            <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-1">Logo Tips</p>
+                  <ul className="space-y-0.5 text-blue-700">
+                    <li>• Square format works best (e.g., 200×200px)</li>
+                    <li>• Use PNG/SVG for transparent backgrounds</li>
+                    <li>• Simple logos look better on mobile</li>
+                  </ul>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Contact & Social */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Contact & Social Links</h3>
-
-        <div className="space-y-4">
-          {/* WhatsApp */}
-          <div>
-            <label htmlFor="whatsapp" className="mb-1 block text-sm font-medium text-gray-700">
-              WhatsApp Number
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-              </div>
-              <input
-                id="whatsapp"
-                type="text"
-                value={formData.whatsappNumber}
-                onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
-                placeholder="+216 XX XXX XXX"
-                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <p className="mt-1 text-sm text-gray-500">
-              Used for the "Order via WhatsApp" button on product pages
-            </p>
-          </div>
-
-          {/* Instagram */}
-          <div>
-            <label htmlFor="instagram" className="mb-1 block text-sm font-medium text-gray-700">
-              Instagram URL
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-              </div>
-              <input
-                id="instagram"
-                type="url"
-                value={formData.instagramUrl}
-                onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
-                placeholder="https://instagram.com/yourshop"
-                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-
-          {/* Facebook */}
-          <div>
-            <label htmlFor="facebook" className="mb-1 block text-sm font-medium text-gray-700">
-              Facebook URL
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </div>
-              <input
-                id="facebook"
-                type="url"
-                value={formData.facebookUrl}
-                onChange={(e) => setFormData({ ...formData, facebookUrl: e.target.value })}
-                placeholder="https://facebook.com/yourshop"
-                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
             </div>
           </div>
         </div>

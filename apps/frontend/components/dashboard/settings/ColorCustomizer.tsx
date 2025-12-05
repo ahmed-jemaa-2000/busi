@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { staggerContainer, staggerItem } from '@/lib/animations';
+import { Palette, Check, Pipette, Sparkles, Sun, Moon, Droplets, Zap } from 'lucide-react';
 
 interface ColorCustomizerProps {
   primaryColor: string;
@@ -10,257 +10,171 @@ interface ColorCustomizerProps {
   onChange: (colors: { primaryColor: string; secondaryColor: string }) => void;
 }
 
-// Popular color palettes
 const COLOR_PALETTES = [
-  {
-    name: 'Ocean Blue',
-    primary: '#2563EB',
-    secondary: '#DBEAFE',
-    category: 'Professional'
-  },
-  {
-    name: 'Forest Green',
-    primary: '#059669',
-    secondary: '#D1FAE5',
-    category: 'Natural'
-  },
-  {
-    name: 'Sunset Orange',
-    primary: '#EA580C',
-    secondary: '#FED7AA',
-    category: 'Energetic'
-  },
-  {
-    name: 'Royal Purple',
-    primary: '#7C3AED',
-    secondary: '#EDE9FE',
-    category: 'Luxury'
-  },
-  {
-    name: 'Rose Pink',
-    primary: '#E11D48',
-    secondary: '#FFE4E6',
-    category: 'Playful'
-  },
-  {
-    name: 'Slate Gray',
-    primary: '#475569',
-    secondary: '#F1F5F9',
-    category: 'Minimal'
-  },
-  {
-    name: 'Golden Yellow',
-    primary: '#F59E0B',
-    secondary: '#FEF3C7',
-    category: 'Warm'
-  },
-  {
-    name: 'Teal Aqua',
-    primary: '#14B8A6',
-    secondary: '#CCFBF1',
-    category: 'Fresh'
-  },
+  { name: 'Ocean Blue', primary: '#2563EB', secondary: '#DBEAFE', mood: 'Professional', icon: '🌊' },
+  { name: 'Forest Green', primary: '#059669', secondary: '#D1FAE5', mood: 'Natural', icon: '🌲' },
+  { name: 'Sunset Orange', primary: '#EA580C', secondary: '#FED7AA', mood: 'Energetic', icon: '🌅' },
+  { name: 'Royal Purple', primary: '#7C3AED', secondary: '#EDE9FE', mood: 'Luxury', icon: '👑' },
+  { name: 'Rose Pink', primary: '#E11D48', secondary: '#FFE4E6', mood: 'Playful', icon: '🌸' },
+  { name: 'Slate Gray', primary: '#475569', secondary: '#F1F5F9', mood: 'Minimal', icon: '🪨' },
+  { name: 'Golden Yellow', primary: '#F59E0B', secondary: '#FEF3C7', mood: 'Warm', icon: '✨' },
+  { name: 'Teal Aqua', primary: '#14B8A6', secondary: '#CCFBF1', mood: 'Fresh', icon: '💎' },
 ];
 
-// Generate shades for a color
-function generateShades(hex: string): string[] {
-  const shades = [];
-  for (let i = 0; i < 7; i++) {
-    const factor = 1 - (i * 0.15);
-    shades.push(adjustColor(hex, factor));
-  }
-  return shades;
-}
-
-function adjustColor(hex: string, factor: number): string {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.min(255, Math.floor(((num >> 16) & 255) * factor));
-  const g = Math.min(255, Math.floor(((num >> 8) & 255) * factor));
-  const b = Math.min(255, Math.floor((num & 255) * factor));
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
-}
-
-// Check contrast ratio
 function getContrastRatio(hex1: string, hex2: string): number {
   const getLuminance = (hex: string) => {
     const rgb = parseInt(hex.replace('#', ''), 16);
     const r = ((rgb >> 16) & 255) / 255;
     const g = ((rgb >> 8) & 255) / 255;
     const b = (rgb & 255) / 255;
-
     const [rs, gs, bs] = [r, g, b].map(c =>
       c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
     );
-
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   };
-
   const l1 = getLuminance(hex1);
   const l2 = getLuminance(hex2);
-  const lighter = Math.max(l1, l2);
-  const darker = Math.min(l1, l2);
-
-  return (lighter + 0.05) / (darker + 0.05);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
 export default function ColorCustomizer({ primaryColor, secondaryColor, onChange }: ColorCustomizerProps) {
-  const [activeColor, setActiveColor] = useState<'primary' | 'secondary'>('primary');
-
-  const primaryShades = generateShades(primaryColor);
   const contrastRatio = getContrastRatio(primaryColor, '#FFFFFF');
   const meetsWCAG = contrastRatio >= 4.5;
 
-  const handlePaletteSelect = (palette: typeof COLOR_PALETTES[0]) => {
-    onChange({
-      primaryColor: palette.primary,
-      secondaryColor: palette.secondary,
-    });
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Quick Palettes */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Quick Color Palettes</h3>
-            <p className="text-sm text-gray-600">Choose a pre-made color combination</p>
+    <div className="space-y-8">
+      {/* Section Header */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <Palette className="w-5 h-5 text-white" />
           </div>
-        </div>
-
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-2 gap-3 md:grid-cols-4"
-        >
-          {COLOR_PALETTES.map((palette) => (
-            <motion.button
-              key={palette.name}
-              variants={staggerItem}
-              type="button"
-              onClick={() => handlePaletteSelect(palette)}
-              className="group relative overflow-hidden rounded-xl border-2 border-gray-200 p-3 text-left transition-all hover:border-primary hover:shadow-md"
-            >
-              {/* Color Preview */}
-              <div className="mb-2 flex gap-2">
-                <div
-                  className="h-12 flex-1 rounded-lg shadow-inner ring-1 ring-gray-200"
-                  style={{ backgroundColor: palette.primary }}
-                />
-                <div
-                  className="h-12 flex-1 rounded-lg shadow-inner ring-1 ring-gray-200"
-                  style={{ backgroundColor: palette.secondary }}
-                />
-              </div>
-
-              {/* Info */}
-              <div className="text-xs">
-                <div className="font-semibold text-gray-900">{palette.name}</div>
-                <div className="text-gray-500">{palette.category}</div>
-              </div>
-
-              {/* Selected Indicator */}
-              {primaryColor === palette.primary && secondaryColor === palette.secondary && (
-                <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-sm">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
-            </motion.button>
-          ))}
-        </motion.div>
+          Color Palette
+        </h2>
+        <p className="text-gray-600 mt-2">
+          Choose colors that represent your brand and create the right mood for your customers.
+        </p>
       </div>
 
-      {/* Custom Colors */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Quick Palettes */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-bold text-gray-900 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            Quick Palettes
+          </h3>
+          <span className="text-xs text-gray-500">Click to apply</span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {COLOR_PALETTES.map((palette) => {
+            const isSelected = primaryColor === palette.primary && secondaryColor === palette.secondary;
+            return (
+              <motion.button
+                key={palette.name}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={() => onChange({ primaryColor: palette.primary, secondaryColor: palette.secondary })}
+                className={`
+                  relative p-4 rounded-xl border-2 text-left transition-all
+                  ${isSelected
+                    ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                    : 'border-gray-100 hover:border-gray-300 bg-white'
+                  }
+                `}
+              >
+                {/* Color Preview */}
+                <div className="flex gap-1.5 mb-3">
+                  <div
+                    className="flex-1 h-12 rounded-lg shadow-inner"
+                    style={{ backgroundColor: palette.primary }}
+                  />
+                  <div
+                    className="flex-1 h-12 rounded-lg shadow-inner border border-gray-100"
+                    style={{ backgroundColor: palette.secondary }}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{palette.icon}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{palette.name}</p>
+                    <p className="text-xs text-gray-500">{palette.mood}</p>
+                  </div>
+                </div>
+
+                {isSelected && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                    <Check className="w-4 h-4 text-white" />
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Custom Color Pickers */}
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Primary Color */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Primary Color</h3>
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div
+              className="w-10 h-10 rounded-xl shadow-lg flex items-center justify-center"
+              style={{ backgroundColor: primaryColor }}
+            >
+              <Sun className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Primary Color</h3>
+              <p className="text-xs text-gray-500">Buttons, links, highlights</p>
+            </div>
+          </div>
 
           <div className="space-y-4">
-            {/* Color Picker */}
-            <div className="flex items-center gap-4">
-              <input
-                type="color"
-                value={primaryColor}
-                onChange={(e) => onChange({ primaryColor: e.target.value, secondaryColor })}
-                className="h-16 w-16 cursor-pointer rounded-lg border-2 border-gray-200"
-              />
+            <div className="flex gap-4">
+              <div className="relative">
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => onChange({ primaryColor: e.target.value, secondaryColor })}
+                  className="w-20 h-20 rounded-xl cursor-pointer border-2 border-gray-200"
+                />
+                <Pipette className="absolute bottom-2 right-2 w-4 h-4 text-white pointer-events-none drop-shadow-md" />
+              </div>
               <div className="flex-1">
-                <div className="mb-1 text-sm font-medium text-gray-700">HEX Value</div>
+                <label className="text-xs font-medium text-gray-600 mb-1.5 block">HEX Value</label>
                 <input
                   type="text"
                   value={primaryColor}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                      onChange({ primaryColor: value, secondaryColor });
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) {
+                      onChange({ primaryColor: e.target.value, secondaryColor });
                     }
                   }}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 font-mono text-sm uppercase transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="#2563EB"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
             </div>
 
-            {/* Shades Preview */}
-            <div>
-              <div className="mb-2 text-sm font-medium text-gray-700">Color Shades</div>
-              <div className="grid grid-cols-7 gap-1">
-                {primaryShades.map((shade, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => onChange({ primaryColor: shade, secondaryColor })}
-                    className="group relative aspect-square rounded-lg ring-1 ring-gray-200 transition-transform hover:scale-110"
-                    style={{ backgroundColor: shade }}
-                    title={`Shade ${index + 1}`}
-                  >
-                    {shade === primaryColor && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="h-3 w-3 rounded-full bg-white shadow-sm ring-2 ring-gray-900/20" />
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-1 flex justify-between text-xs text-gray-500">
-                <span>Lighter</span>
-                <span>Darker</span>
-              </div>
-            </div>
-
-            {/* Usage Info */}
-            <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-              <div className="font-medium text-gray-700">Used for:</div>
-              <ul className="mt-1 list-inside list-disc space-y-0.5">
-                <li>Buttons and CTAs</li>
-                <li>Links and highlights</li>
-                <li>Active states</li>
-              </ul>
-            </div>
-
             {/* Accessibility Check */}
-            <div className={`rounded-lg p-3 ${meetsWCAG ? 'bg-green-50' : 'bg-yellow-50'}`}>
-              <div className="flex items-start gap-2">
-                <svg
-                  className={`h-5 w-5 flex-shrink-0 ${meetsWCAG ? 'text-green-600' : 'text-yellow-600'}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={meetsWCAG ? "M5 13l4 4L19 7" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"} />
-                </svg>
-                <div className="flex-1 text-sm">
-                  <div className={`font-medium ${meetsWCAG ? 'text-green-900' : 'text-yellow-900'}`}>
-                    {meetsWCAG ? 'Passes WCAG AA' : 'Consider darker shade'}
-                  </div>
-                  <div className={`${meetsWCAG ? 'text-green-700' : 'text-yellow-700'}`}>
-                    Contrast ratio: {contrastRatio.toFixed(2)}:1
-                    {!meetsWCAG && ' (4.5:1 recommended)'}
-                  </div>
+            <div className={`rounded-xl p-4 ${meetsWCAG ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${meetsWCAG ? 'bg-green-100' : 'bg-amber-100'}`}>
+                  {meetsWCAG ? (
+                    <Check className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <Zap className="w-5 h-5 text-amber-600" />
+                  )}
+                </div>
+                <div>
+                  <p className={`font-semibold text-sm ${meetsWCAG ? 'text-green-900' : 'text-amber-900'}`}>
+                    {meetsWCAG ? 'Great contrast!' : 'Consider darker shade'}
+                  </p>
+                  <p className={`text-xs ${meetsWCAG ? 'text-green-700' : 'text-amber-700'}`}>
+                    Contrast: {contrastRatio.toFixed(1)}:1 {!meetsWCAG && '(4.5:1 needed)'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -268,82 +182,64 @@ export default function ColorCustomizer({ primaryColor, secondaryColor, onChange
         </div>
 
         {/* Secondary Color */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Secondary Color</h3>
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div
+              className="w-10 h-10 rounded-xl shadow-lg flex items-center justify-center border border-gray-200"
+              style={{ backgroundColor: secondaryColor }}
+            >
+              <Droplets className="w-5 h-5" style={{ color: primaryColor }} />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Secondary Color</h3>
+              <p className="text-xs text-gray-500">Backgrounds, badges, accents</p>
+            </div>
+          </div>
 
           <div className="space-y-4">
-            {/* Color Picker */}
-            <div className="flex items-center gap-4">
-              <input
-                type="color"
-                value={secondaryColor}
-                onChange={(e) => onChange({ primaryColor, secondaryColor: e.target.value })}
-                className="h-16 w-16 cursor-pointer rounded-lg border-2 border-gray-200"
-              />
+            <div className="flex gap-4">
+              <div className="relative">
+                <input
+                  type="color"
+                  value={secondaryColor}
+                  onChange={(e) => onChange({ primaryColor, secondaryColor: e.target.value })}
+                  className="w-20 h-20 rounded-xl cursor-pointer border-2 border-gray-200"
+                />
+                <Pipette className="absolute bottom-2 right-2 w-4 h-4 text-gray-600 pointer-events-none drop-shadow-md" />
+              </div>
               <div className="flex-1">
-                <div className="mb-1 text-sm font-medium text-gray-700">HEX Value</div>
+                <label className="text-xs font-medium text-gray-600 mb-1.5 block">HEX Value</label>
                 <input
                   type="text"
                   value={secondaryColor}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                      onChange({ primaryColor, secondaryColor: value });
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) {
+                      onChange({ primaryColor, secondaryColor: e.target.value });
                     }
                   }}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 font-mono text-sm uppercase transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="#DBEAFE"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-mono text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
             </div>
 
-            {/* Preview with Primary */}
-            <div>
-              <div className="mb-2 text-sm font-medium text-gray-700">Color Harmony</div>
-              <div className="flex gap-2">
-                <div
-                  className="flex-1 rounded-lg p-4 text-center font-semibold text-white shadow-inner ring-1 ring-gray-200"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  Primary
-                </div>
-                <div
-                  className="flex-1 rounded-lg p-4 text-center font-semibold shadow-inner ring-1 ring-gray-200"
-                  style={{ backgroundColor: secondaryColor, color: primaryColor }}
-                >
-                  Secondary
-                </div>
-              </div>
-            </div>
-
-            {/* Usage Info */}
-            <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-              <div className="font-medium text-gray-700">Used for:</div>
-              <ul className="mt-1 list-inside list-disc space-y-0.5">
-                <li>Backgrounds and surfaces</li>
-                <li>Badges and tags</li>
-                <li>Supporting elements</li>
-              </ul>
-            </div>
-
-            {/* Live Preview */}
-            <div className="rounded-lg border border-gray-200 p-4">
-              <div className="mb-2 text-sm font-medium text-gray-700">Button Preview</div>
-              <div className="flex gap-2">
+            {/* Color Harmony Preview */}
+            <div className="rounded-xl border border-gray-200 p-4">
+              <p className="text-xs font-medium text-gray-600 mb-3">Button Preview</p>
+              <div className="flex gap-3">
                 <button
                   type="button"
-                  className="flex-1 rounded-lg px-4 py-2 font-semibold text-white shadow-sm transition-transform hover:scale-105"
+                  className="flex-1 py-2.5 rounded-xl font-semibold text-white text-sm shadow-lg"
                   style={{ backgroundColor: primaryColor }}
                 >
                   Primary
                 </button>
                 <button
                   type="button"
-                  className="flex-1 rounded-lg border-2 px-4 py-2 font-semibold shadow-sm transition-transform hover:scale-105"
+                  className="flex-1 py-2.5 rounded-xl font-semibold text-sm border-2"
                   style={{
+                    backgroundColor: secondaryColor,
                     borderColor: primaryColor,
-                    color: primaryColor,
-                    backgroundColor: secondaryColor
+                    color: primaryColor
                   }}
                 >
                   Secondary
@@ -354,19 +250,46 @@ export default function ColorCustomizer({ primaryColor, secondaryColor, onChange
         </div>
       </div>
 
-      {/* Tips */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-        <div className="flex items-start gap-3">
-          <svg className="h-5 w-5 flex-shrink-0 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          <div className="flex-1 text-sm text-blue-900">
-            <div className="font-semibold">Color Tips:</div>
-            <ul className="mt-1 list-inside list-disc space-y-0.5">
-              <li>Use high contrast between primary color and white text</li>
-              <li>Secondary color works best as a light tint of primary or complementary color</li>
-              <li>Test your colors on different devices and in different lighting</li>
-            </ul>
+      {/* Live Store Preview */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+        <h3 className="font-bold text-gray-900 mb-4">Live Store Preview</h3>
+        <div
+          className="rounded-xl p-6 border border-gray-200"
+          style={{ backgroundColor: secondaryColor + '30' }}
+        >
+          {/* Mock Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gray-200" />
+              <div className="h-3 w-24 bg-gray-300 rounded-full" />
+            </div>
+            <div className="flex gap-2">
+              <div className="h-3 w-12 bg-gray-200 rounded-full" />
+              <div className="h-3 w-12 bg-gray-200 rounded-full" />
+            </div>
+          </div>
+
+          {/* Mock Hero */}
+          <div
+            className="rounded-xl p-8 mb-6 text-center"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <div className="h-4 w-48 bg-white/30 rounded-full mx-auto mb-3" />
+            <div className="h-3 w-64 bg-white/20 rounded-full mx-auto" />
+          </div>
+
+          {/* Mock Products */}
+          <div className="grid grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl p-3 shadow-sm">
+                <div className="aspect-square bg-gray-100 rounded-lg mb-2" />
+                <div className="h-2 w-full bg-gray-200 rounded-full mb-1" />
+                <div
+                  className="h-2 w-1/2 rounded-full"
+                  style={{ backgroundColor: primaryColor + '60' }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
