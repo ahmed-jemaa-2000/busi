@@ -29,7 +29,7 @@ export default function QuickActionCard({
             href={href}
             className="group relative flex flex-col p-6 bg-white rounded-2xl border border-gray-100 shadow-sm card-hover overflow-hidden"
         >
-            <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 ${colorStyles[color]}`}>
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 ${colorStyles[color]}`} aria-hidden="true">
                 <div className="text-2xl transform group-hover:scale-110 transition-transform duration-300">{icon}</div>
             </div>
             <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-primary transition-colors">

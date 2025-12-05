@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getUserShopId } from '@/lib/auth-server';
+import { slugify } from '@/lib/slugify';
+import { z } from 'zod';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
 export const dynamic = 'force-dynamic';
 
-function slugify(text: string): string {
-  return text
-    .toString()
-    .normalize('NFKD') // Separate accent marks
-    .replace(/[\u0300-\u036f]/g, '') // Remove accent marks
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+// Define Zod schema for product validation
+const productSchema = z.object({
+  name: z.string().min(1, 'Product name is required'),
+  description: z.string().optional(),
+  price: z.number().min(0, 'Price must be positive').optional(),
+  slug: z.string().optional(),
+  // Add other fields as necessary based on your Strapi model
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,26 +45,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing product data' }, { status: 400 });
     }
 
-    const data = JSON.parse(dataStr);
-
-    if (!data.name || typeof data.name !== 'string') {
-      return NextResponse.json({ error: 'Product name is required' }, { status: 400 });
+    let rawData;
+    try {
+      rawData = JSON.parse(dataStr);
+    } catch (e) {
+      return NextResponse.json({ error: 'Invalid JSON data' }, { status: 400 });
     }
 
-    data.slug = data.slug || slugify(data.name) || `product-${Date.now()}`;
+    // Validate data with Zod
+    const validationResult = productSchema.safeParse(rawData);
 
-    // Add shop ID to data
-    data.shop = shopId;
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.issues.map((e: any) => e.message).join(', ');
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
+
+    const data = validationResult.data;
+
+    // Generate slug if not provided
+    const finalSlug = data.slug || slugify(data.name) || `product-${Date.now()}`;
+
+    // Prepare payload for Strapi
+    const payload = {
+      ...data,
+      slug: finalSlug,
+      shop: shopId,
+    };
 
     console.log('[Create Product API] Sending to Strapi:', {
       shopId,
-      dataKeys: Object.keys(data),
+      dataKeys: Object.keys(payload),
       hasImages: formData.getAll('files.images').length > 0
     });
 
     // Create new FormData for Strapi
     const strapiFormData = new FormData();
-    strapiFormData.append('data', JSON.stringify(data));
+    strapiFormData.append('data', JSON.stringify(payload));
 
     // Transfer image files
     const imageFiles = formData.getAll('files.images');
