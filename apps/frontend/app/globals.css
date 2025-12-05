@@ -606,3 +606,162 @@
 .heart-bounce {
   animation: heart-bounce 0.5s ease-in-out;
 }
+
+/* ============================================
+   PREMIUM UI ENHANCEMENTS (Safe CSS Only)
+   ============================================ */
+
+/* Premium Glassmorphism */
+.glass-premium {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.glass-dark-premium {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Premium Text Gradient */
+.text-gradient-premium {
+  background: linear-gradient(135deg, hsl(262, 83%, 58%) 0%, hsl(280, 80%, 60%) 50%, hsl(310, 75%, 55%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Premium Card Effects */
+.card-premium {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 
+              0 2px 4px rgba(0, 0, 0, 0.02), 
+              0 12px 24px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card-premium:hover {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 
+              0 4px 8px rgba(0, 0, 0, 0.04), 
+              0 24px 48px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+/* Gradient Border Effect (on hover) */
+.gradient-border-hover {
+  position: relative;
+  background: white;
+  overflow: hidden;
+}
+
+.gradient-border-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, hsl(262, 83%, 58%), hsl(280, 80%, 60%), hsl(310, 75%, 55%));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border-hover:hover::before {
+  opacity: 1;
+}
+
+/* Premium Button Gradient */
+.btn-gradient {
+  background: linear-gradient(135deg, hsl(262, 83%, 58%) 0%, hsl(280, 80%, 60%) 100%);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px hsla(262, 83%, 58%, 0.35);
+}
+
+/* Shine Sweep Effect */
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  transform: skewX(-15deg);
+  transition: left 0.6s ease;
+}
+
+.shine-effect:hover::after {
+  left: 100%;
+}
+
+/* Glow on Hover */
+.glow-hover:hover {
+  box-shadow: 0 0 25px hsla(262, 83%, 58%, 0.4);
+}
+
+/* Text Shadows */
+.text-shadow-sm { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+.text-shadow-md { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); }
+.text-shadow-lg { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+
+/* Badge Gradient */
+.badge-gradient {
+  background: linear-gradient(135deg, hsl(262, 83%, 58%) 0%, hsl(280, 80%, 60%) 100%);
+  color: white;
+  font-weight: 600;
+}
+
+/* Floating Animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Pulse Glow */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px hsla(262, 83%, 58%, 0.3); }
+  50% { box-shadow: 0 0 30px hsla(262, 83%, 58%, 0.5); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Shimmer Loading Effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

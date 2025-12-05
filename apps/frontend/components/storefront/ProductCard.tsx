@@ -13,11 +13,10 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
   const { cardStyle } = shop;
   const mainImage = product.images && product.images[0];
 
-  const cardClasses = `group bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-    cardStyle === 'rounded' ? 'rounded-xl' :
-    cardStyle === 'square' ? 'rounded-none' :
-    'rounded-lg'
-  } shadow-md`;
+  const cardClasses = `group bg-white overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 gradient-border-hover ${cardStyle === 'rounded' ? 'rounded-2xl' :
+      cardStyle === 'square' ? 'rounded-none' :
+        'rounded-xl'
+    } shadow-lg`;
 
   const discountPercentage = product.oldPrice && product.oldPrice > product.price
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
@@ -27,18 +26,21 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
     <Link href={`/product/${product.slug}`} className="block">
       <div className={cardClasses}>
         {/* Product Image */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
           {mainImage ? (
             <>
               <Image
                 src={getStrapiMediaUrl(mainImage.url)}
                 alt={product.name}
                 fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               />
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+              {/* Gradient Overlay on Hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+              {/* Shine Effect */}
+              <div className="absolute inset-0 shine-effect" />
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -52,20 +54,20 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
             {/* Discount Badge */}
             {discountPercentage > 0 && (
-              <Badge variant="error" size="md">
+              <span className="badge-gradient px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                 -{discountPercentage}%
-              </Badge>
+              </span>
             )}
 
             <div className="ml-auto">
               {/* Featured Badge */}
               {product.isFeatured && (
-                <Badge variant="warning" size="md">
-                  <svg className="w-3 h-3 mr-1 inline" fill="currentColor" viewBox="0 0 20 20">
+                <span className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                   Featured
-                </Badge>
+                </span>
               )}
             </div>
           </div>
@@ -86,24 +88,30 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
             </div>
           )}
 
-          {/* Quick View Button - Shows on Hover */}
-          <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors">
-              Quick View
+          {/* Quick View Button - Premium Glass */}
+          <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+            <div className="glass-premium rounded-xl px-5 py-3 text-center text-sm font-bold text-primary hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer shadow-lg">
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Quick View
+              </span>
             </div>
           </div>
         </div>
 
         {/* Product Info */}
-        <div className="p-4 space-y-3">
+        <div className="p-5 space-y-3">
           {/* Product Name */}
-          <h3 className="font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors min-h-[3.5rem]">
+          <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300 min-h-[3.5rem]">
             {product.name}
           </h3>
 
           {/* Price Section */}
           <div className="flex items-baseline space-x-2">
-            <span className="text-xl font-bold text-primary">
+            <span className="text-2xl font-bold text-gradient-premium">
               {product.price} TND
             </span>
             {product.oldPrice && product.oldPrice > product.price && (
@@ -119,7 +127,7 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
               {product.sizes.slice(0, 5).map((size) => (
                 <span
                   key={size}
-                  className="text-xs px-2.5 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                  className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors duration-200 font-medium"
                 >
                   {size}
                 </span>
@@ -139,7 +147,7 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
               {product.colors.slice(0, 4).map((color, index) => (
                 <div
                   key={index}
-                  className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                  className="w-5 h-5 rounded-full border-2 border-white shadow-md ring-1 ring-gray-200 transform hover:scale-110 transition-transform duration-200"
                   style={{ backgroundColor: color.toLowerCase() }}
                   title={color}
                 />
