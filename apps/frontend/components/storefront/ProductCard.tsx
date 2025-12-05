@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Product, Shop } from '@busi/types';
@@ -10,34 +13,41 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, shop }: ProductCardProps) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
   const { cardStyle } = shop;
   const mainImage = product.images && product.images[0];
 
-  const cardClasses = `group bg-white overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 gradient-border-hover ${cardStyle === 'rounded' ? 'rounded-2xl' :
-      cardStyle === 'square' ? 'rounded-none' :
-        'rounded-xl'
+  const cardClasses = `group bg-white overflow-hidden transition-all duration-500 hover:shadow-2xl card-lift-premium ${cardStyle === 'rounded' ? 'rounded-2xl' :
+    cardStyle === 'square' ? 'rounded-none' :
+      'rounded-xl'
     } shadow-lg`;
 
   const discountPercentage = product.oldPrice && product.oldPrice > product.price
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
 
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsWishlisted(!isWishlisted);
+  };
+
   return (
     <Link href={`/product/${product.slug}`} className="block">
       <div className={cardClasses}>
         {/* Product Image */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
+        <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 kenburns-hover">
           {mainImage ? (
             <>
               <Image
                 src={getStrapiMediaUrl(mainImage.url)}
                 alt={product.name}
                 fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                className="object-cover transition-transform duration-700 ease-out"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               />
               {/* Gradient Overlay on Hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               {/* Shine Effect */}
               <div className="absolute inset-0 shine-effect" />
@@ -54,12 +64,36 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
             {/* Discount Badge */}
             {discountPercentage > 0 && (
-              <span className="badge-gradient px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+              <span className="badge-gradient px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse-glow">
                 -{discountPercentage}%
               </span>
             )}
 
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              {/* Wishlist Heart Button */}
+              <button
+                onClick={handleWishlistClick}
+                className={`p-2 rounded-full backdrop-blur-md transition-all duration-300 heart-pop ${isWishlisted
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                    : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
+                  }`}
+                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill={isWishlisted ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </button>
+
               {/* Featured Badge */}
               {product.isFeatured && (
                 <span className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg">
@@ -76,7 +110,7 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
           {product.stock !== undefined && product.stock !== null && product.stock <= 5 && product.stock > 0 && (
             <div className="absolute bottom-3 left-3 z-10">
               <Badge variant="warning" size="sm">
-                Only {product.stock} left
+                🔥 Only {product.stock} left
               </Badge>
             </div>
           )}
@@ -90,7 +124,7 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
 
           {/* Quick View Button - Premium Glass */}
           <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-            <div className="glass-premium rounded-xl px-5 py-3 text-center text-sm font-bold text-primary hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer shadow-lg">
+            <div className="glass-premium rounded-xl px-5 py-3 text-center text-sm font-bold text-primary hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer shadow-lg cta-pulse">
               <span className="flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -105,7 +139,7 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
         {/* Product Info */}
         <div className="p-5 space-y-3">
           {/* Product Name */}
-          <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300 min-h-[3.5rem]">
+          <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300 min-h-[3.5rem] tracking-tight">
             {product.name}
           </h3>
 
@@ -115,7 +149,7 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
               {product.price} TND
             </span>
             {product.oldPrice && product.oldPrice > product.price && (
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-sm text-gray-400 line-through font-medium">
                 {product.oldPrice} TND
               </span>
             )}
@@ -133,8 +167,8 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
                 </span>
               ))}
               {product.sizes.length > 5 && (
-                <span className="text-xs px-2.5 py-1 text-gray-500">
-                  +{product.sizes.length - 5} more
+                <span className="text-xs px-2.5 py-1 text-gray-400 font-medium">
+                  +{product.sizes.length - 5}
                 </span>
               )}
             </div>
@@ -142,18 +176,18 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
 
           {/* Colors Preview */}
           {product.colors && product.colors.length > 0 && (
-            <div className="flex items-center space-x-1">
-              <span className="text-xs text-gray-500 mr-1">Colors:</span>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-xs text-gray-400 mr-1">Colors:</span>
               {product.colors.slice(0, 4).map((color, index) => (
                 <div
                   key={index}
-                  className="w-5 h-5 rounded-full border-2 border-white shadow-md ring-1 ring-gray-200 transform hover:scale-110 transition-transform duration-200"
+                  className="w-5 h-5 rounded-full border-2 border-white shadow-md ring-1 ring-gray-200 transform hover:scale-125 transition-transform duration-200"
                   style={{ backgroundColor: color.toLowerCase() }}
                   title={color}
                 />
               ))}
               {product.colors.length > 4 && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-400 font-medium">
                   +{product.colors.length - 4}
                 </span>
               )}
@@ -164,3 +198,4 @@ export default function ProductCard({ product, shop }: ProductCardProps) {
     </Link>
   );
 }
+

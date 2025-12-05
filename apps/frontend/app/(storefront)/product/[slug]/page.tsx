@@ -100,124 +100,123 @@ export default async function ProductPage({ params }: ProductPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-24 lg:pb-0">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-32 lg:pb-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <Container>
+        {/* Breadcrumbs */}
         <div className="py-6">
           <Breadcrumbs items={breadcrumbItems} />
         </div>
 
-        <div className="grid grid-cols-1 gap-12 pb-12 lg:grid-cols-[1.2fr,1fr] lg:gap-16">
-          {/* Left Column: Sticky Gallery */}
-          <div className="lg:sticky lg:top-24 lg:self-start h-fit">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-gray-50"
-            >
-              <ProductImageGallery images={product.images} productName={product.name} />
-            </motion.div>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 pb-12">
+          {/* Left Column: Image Gallery */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="lg:sticky lg:top-24 lg:self-start"
+          >
+            <ProductImageGallery images={product.images} productName={product.name} />
+          </motion.div>
 
-          {/* Right Column: Product Details */}
-          <div className="flex flex-col gap-8">
-            {/* Header Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-6"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                {product.isFeatured && <Badge variant="warning" className="rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider">Featured</Badge>}
-                {discountPercentage > 0 && <Badge variant="error" className="rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider">Save {discountPercentage}%</Badge>}
-                <Badge className="bg-gray-100 text-gray-700 border-gray-200 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider">Authentic</Badge>
-              </div>
+          {/* Right Column: Product Info */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="space-y-8"
+          >
+            {/* Badges */}
+            <div className="flex flex-wrap items-center gap-2">
+              {product.isFeatured && (
+                <Badge variant="warning" className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
+                  ⭐ Featured
+                </Badge>
+              )}
+              {discountPercentage > 0 && (
+                <Badge variant="error" className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider animate-pulse">
+                  🔥 {discountPercentage}% OFF
+                </Badge>
+              )}
+              <Badge className="bg-green-50 text-green-700 border-green-200 rounded-full px-4 py-1.5 text-xs font-medium">
+                ✓ In Stock
+              </Badge>
+            </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight">{product.name}</h1>
+            {/* Product Title */}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight tracking-tight">
+              {product.name}
+            </h1>
 
-              <div className="flex items-baseline gap-4">
-                <span className="text-5xl md:text-6xl font-bold text-primary tracking-tight">{product.price} <span className="text-2xl md:text-3xl font-medium text-gray-500">TND</span></span>
-                {product.oldPrice && product.oldPrice > product.price && (
-                  <span className="text-xl md:text-2xl text-gray-400 line-through decoration-2 decoration-gray-300">{product.oldPrice} TND</span>
-                )}
-              </div>
-            </motion.div>
+            {/* Price */}
+            <div className="flex items-baseline gap-4">
+              <span className="text-4xl md:text-5xl font-bold text-gradient-premium">
+                {product.price} <span className="text-xl text-gray-500">TND</span>
+              </span>
+              {product.oldPrice && product.oldPrice > product.price && (
+                <span className="text-xl text-gray-400 line-through decoration-2">
+                  {product.oldPrice} TND
+                </span>
+              )}
+            </div>
 
-            {/* Trust Badges */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="grid grid-cols-2 gap-4 py-8 border-y border-gray-100"
-            >
+            {/* Trust Badges - Compact */}
+            <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: Truck, color: 'text-blue-600', bg: 'bg-blue-50', title: 'Fast Delivery', subtitle: '24-48h Shipping' },
-                { icon: ShieldCheck, color: 'text-green-600', bg: 'bg-green-50', title: 'Secure Order', subtitle: 'Cash on Delivery' },
-                { icon: RotateCcw, color: 'text-purple-600', bg: 'bg-purple-50', title: 'Free Returns', subtitle: '30-Day Policy' },
-                { icon: MessageCircle, color: 'text-amber-600', bg: 'bg-amber-50', title: 'Support', subtitle: 'Always here to help' }
+                { icon: Truck, color: 'text-blue-600', bg: 'bg-blue-50', title: 'Fast Delivery' },
+                { icon: ShieldCheck, color: 'text-green-600', bg: 'bg-green-50', title: 'Cash on Delivery' },
+                { icon: RotateCcw, color: 'text-purple-600', bg: 'bg-purple-50', title: 'Easy Returns' },
+                { icon: MessageCircle, color: 'text-amber-600', bg: 'bg-amber-50', title: '24/7 Support' }
               ].map((item, index) => (
-                <div key={index} className="group flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-300">
-                  <div className={`p-3 ${item.bg} ${item.color} rounded-full group-hover:scale-110 transition-transform duration-300`}>
-                    <item.icon className="w-6 h-6" />
+                <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100 shadow-sm">
+                  <div className={`p-2 ${item.bg} ${item.color} rounded-lg`}>
+                    <item.icon className="w-4 h-4" />
                   </div>
-                  <div>
-                    <p className="font-bold text-sm text-gray-900">{item.title}</p>
-                    <p className="text-xs text-gray-500 font-medium">{item.subtitle}</p>
-                  </div>
+                  <span className="text-sm font-medium text-gray-700">{item.title}</span>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
             {/* Description */}
             {product.description && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="space-y-4"
-              >
-                <h3 className="text-2xl font-bold text-gray-900">Description</h3>
+              <div className="space-y-3 pt-4 border-t border-gray-100">
+                <h3 className="text-lg font-bold text-gray-900">About this product</h3>
                 <div
-                  className="prose-enhanced text-gray-600 leading-relaxed text-lg"
+                  className="prose prose-sm prose-gray max-w-none text-gray-600"
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
                 />
-              </motion.div>
+              </div>
             )}
 
-            {/* Desktop CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="hidden lg:block p-8 bg-gray-50 rounded-3xl border border-gray-100"
-            >
+            {/* WhatsApp Order Section - Desktop */}
+            <div className="hidden lg:block pt-4">
               <WhatsAppButton product={product} shop={shop} />
-              <p className="text-center text-sm text-gray-500 mt-4 font-medium">
-                No payment required now. Pay when you receive it.
-              </p>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </Container>
 
-      {/* Mobile Fixed CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:hidden z-50">
-        <div className="flex items-center gap-4 mb-3">
-          <div className="flex-1">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Total Price</p>
-            <p className="text-2xl font-bold text-primary leading-none">{product.price} <span className="text-sm text-gray-500 font-medium">TND</span></p>
+      {/* Mobile Fixed Bottom CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200 shadow-[0_-4px_30px_rgba(0,0,0,0.1)] lg:hidden z-50 safe-area-bottom">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="flex-1">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Total Price</p>
+              <p className="text-2xl font-bold text-gradient-premium leading-none">{product.price} <span className="text-sm text-gray-500">TND</span></p>
+            </div>
+            {product.oldPrice && product.oldPrice > product.price && (
+              <div className="text-right">
+                <span className="text-sm text-gray-400 line-through">{product.oldPrice} TND</span>
+                <span className="ml-2 text-xs font-bold text-green-600">-{discountPercentage}%</span>
+              </div>
+            )}
           </div>
-          <div className="flex-1">
-            {/* Placeholder for size selector if needed in future */}
-          </div>
+          <WhatsAppButton product={product} shop={shop} />
         </div>
-        <WhatsAppButton product={product} shop={shop} />
       </div>
     </div>
   );
